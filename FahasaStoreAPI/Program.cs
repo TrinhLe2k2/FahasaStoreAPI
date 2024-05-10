@@ -2,6 +2,7 @@ using FahasaStoreAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using AutoMapper;
+using FahasaStoreAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +24,9 @@ builder.Services.AddMvc(option => option.EnableEndpointRouting = false)
                     .AddNewtonsoftJson(otp => otp.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
+//builder.Services.AddHttpClient();
+//builder.Services.AddScoped<IBookRecommendationSystem, BookRecommendationSystem>();
 
 var app = builder.Build();
 

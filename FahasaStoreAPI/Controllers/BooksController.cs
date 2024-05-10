@@ -52,32 +52,43 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Book>> GetBook(int id)
+        public async Task<ActionResult<BookEntities>> GetBook(int id)
         {
           if (_context.Books == null)
           {
               return NotFound();
           }
-            var book = await _context.Books.FindAsync(id);
+            var book = await _context.Books
+                .Include(e => e.Author)
+                  .Include(e => e.CoverType)
+                  .Include(e => e.Dimension)
+                  .Include(e => e.Partner)
+                  .Include(e => e.Subcategory)
+                  .Include(e => e.CartItems)
+                  .Include(e => e.FlashSaleBooks)
+                  .Include(e => e.OrderItems)
+                  .Include(e => e.PosterImages)
+                  .Include(e => e.Reviews)
+                .FirstOrDefaultAsync(e => e.BookId == id);
 
             if (book == null)
             {
                 return NotFound();
             }
 
-            return book;
+            return _mapper.Map<BookEntities>(book);
         }
 
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, Book book)
+        public async Task<IActionResult> PutBook(int id, BookForm bookForm)
         {
+            var book = _mapper.Map<Book>(bookForm);
             if (id != book.BookId)
             {
                 return BadRequest();
             }
-
             _context.Entry(book).State = EntityState.Modified;
 
             try

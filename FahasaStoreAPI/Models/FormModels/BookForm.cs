@@ -2,6 +2,24 @@
 {
     public class BookForm
     {
+        public BookForm(int bookId, int? subcategoryId, int? partnerId, int? authorId, int? coverTypeId, int? dimensionId, string name, string description, decimal originalPrice, decimal currentPrice, double discountPercentage, int quantity, double? weight, int? pageCount)
+        {
+            BookId = bookId;
+            SubcategoryId = subcategoryId;
+            PartnerId = partnerId;
+            AuthorId = authorId;
+            CoverTypeId = coverTypeId;
+            DimensionId = dimensionId;
+            Name = name;
+            Description = description;
+            OriginalPrice = originalPrice;
+            CurrentPrice = currentPrice;
+            DiscountPercentage = discountPercentage;
+            Quantity = quantity;
+            Weight = weight;
+            PageCount = pageCount;
+        }
+
         public int BookId { get; set; }
         public int? SubcategoryId { get; set; }
         public int? PartnerId { get; set; }

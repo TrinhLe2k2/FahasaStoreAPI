@@ -1,9 +1,12 @@
-﻿namespace FahasaStoreAPI.Models.FormModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace FahasaStoreAPI.Models.FormModels
 {
     public class UserForm
     {
         public int UserId { get; set; }
         public int? RoleId { get; set; }
+        [Display(Name = "Tên")]
         public string FirstName { get; set; } = null!;
         public string LastName { get; set; } = null!;
         public string Email { get; set; } = null!;
