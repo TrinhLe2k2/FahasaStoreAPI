@@ -32,7 +32,10 @@ namespace FahasaStoreAPI.Controllers
           {
               return NotFound();
           }
-            return await _context.Subcategories.ToListAsync();
+            return await _context.Subcategories
+                .Include(e=>e.Category)
+                .Include(e=>e.Books)
+                .ToListAsync();
         }
 
         // GET: api/Subcategories/5
@@ -56,8 +59,9 @@ namespace FahasaStoreAPI.Controllers
         // PUT: api/Subcategories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSubcategory(int id, Subcategory subcategory)
+        public async Task<IActionResult> PutSubcategory(int id, SubcategoryForm subcategoryForm)
         {
+            var subcategory = _mapper.Map<Subcategory>(subcategoryForm);
             if (id != subcategory.SubcategoryId)
             {
                 return BadRequest();

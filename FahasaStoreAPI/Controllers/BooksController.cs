@@ -79,6 +79,23 @@ namespace FahasaStoreAPI.Controllers
             return _mapper.Map<BookEntities>(book);
         }
 
+        [HttpGet("PutBook/{id}")]
+        public async Task<ActionResult<BookForm>> PutBook(int id)
+        {
+            if (_context.Books == null)
+            {
+                return NotFound();
+            }
+            var book = await _context.Books.FirstOrDefaultAsync(e => e.BookId == id);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            return _mapper.Map<BookForm>(book);
+        }
+
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]

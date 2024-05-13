@@ -496,6 +496,8 @@ namespace FahasaStoreAPI.Entities
                     .HasMaxLength(100)
                     .HasColumnName("email");
 
+                entity.Property(e => e.ImageUrl).HasColumnName("image_url");
+
                 entity.Property(e => e.Name)
                     .HasMaxLength(100)
                     .HasColumnName("name");

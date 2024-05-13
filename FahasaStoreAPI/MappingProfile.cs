@@ -77,7 +77,38 @@ namespace FahasaStoreAPI
             CreateMap<Voucher, VoucherBasic>().ReverseMap();
             CreateMap<Website, WebsiteBasic>().ReverseMap();
 
+            CreateMap<Address, AddressEntities>().ReverseMap();
+            CreateMap<Author, AuthorEntities>().ReverseMap();
+            CreateMap<Banner, BannerEntities>().ReverseMap();
+            CreateMap<CoverType, CoverTypeEntities>().ReverseMap();
             CreateMap<Book, BookEntities>().ReverseMap();
+            CreateMap<Cart, CartEntities>().ReverseMap();
+            CreateMap<CartItem, CartItemEntities>().ReverseMap();
+            CreateMap<Category, CategoryEntities>().ReverseMap();
+            CreateMap<Dimension, DimensionEntities>().ReverseMap();
+            CreateMap<FlashSale, FlashSaleEntities>().ReverseMap();
+            CreateMap<FlashSaleBook, FlashSaleBookEntities>().ReverseMap();
+            CreateMap<Help, HelpEntities>().ReverseMap();
+            CreateMap<HelpContent, HelpContentEntities>().ReverseMap();
+            CreateMap<Menu, MenuEntities>().ReverseMap();
+            CreateMap<Notification, NotificationEntities>().ReverseMap();
+            CreateMap<NotificationType, NotificationTypeEntities>().ReverseMap();
+            CreateMap<Order, OrderEntities>().ReverseMap();
+            CreateMap<OrderItem, OrderItemEntities>().ReverseMap();
+            CreateMap<OrderStatus, OrderStatusEntities>().ReverseMap();
+            CreateMap<Partner, PartnerEntities>().ReverseMap();
+            CreateMap<PartnerType, PartnerTypeEntities>().ReverseMap();
+            CreateMap<Payment, PaymentEntities>().ReverseMap();
+            CreateMap<PaymentMethod, PaymentMethodEntities>().ReverseMap();
+            CreateMap<PosterImage, PosterImageEntities>().ReverseMap();
+            CreateMap<Review, ReviewEntities>().ReverseMap();
+            CreateMap<Role, RoleEntities>().ReverseMap();
+            CreateMap<SocialMediaLink, SocialMediaLinkEntities>().ReverseMap();
+            CreateMap<Status, StatusEntities>().ReverseMap();
+            CreateMap<Subcategory, SubcategoryEntities>().ReverseMap();
+            CreateMap<User, UserEntities>().ReverseMap();
+            CreateMap<Voucher, VoucherEntities>().ReverseMap();
+            CreateMap<Website, WebsiteEntities>().ReverseMap();
         }
     }
 }

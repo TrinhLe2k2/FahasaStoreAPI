@@ -1,13 +1,14 @@
-﻿using System;
+﻿using FahasaStoreAPI.Models.BasicModels;
+using System;
 using System.Collections.Generic;
 
-namespace FahasaStoreAPI.Entities
+namespace FahasaStoreAPI.Models.EntitiesModels
 {
-    public partial class Partner
+    public partial class PartnerEntities
     {
-        public Partner()
+        public PartnerEntities()
         {
-            Books = new HashSet<Book>();
+            Books = new HashSet<BookBasic>();
         }
 
         public int PartnerId { get; set; }
@@ -18,7 +19,7 @@ namespace FahasaStoreAPI.Entities
         public string Email { get; set; } = null!;
         public string? ImageUrl { get; set; }
 
-        public virtual PartnerType? PartnerType { get; set; }
-        public virtual ICollection<Book> Books { get; set; }
+        public virtual PartnerTypeBasic? PartnerType { get; set; }
+        public virtual ICollection<BookBasic> Books { get; set; }
     }
 }

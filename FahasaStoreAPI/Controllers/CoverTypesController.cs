@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models.FormModels;
+using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -26,31 +27,32 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/CoverTypes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CoverType>>> GetCoverTypes()
+        public async Task<ActionResult<IEnumerable<CoverTypeEntities>>> GetCoverTypes()
         {
           if (_context.CoverTypes == null)
           {
               return NotFound();
           }
-            return await _context.CoverTypes.ToListAsync();
+          var coverTypes = await _context.CoverTypes.Include(e=>e.Books).ToListAsync();
+            return _mapper.Map<List<CoverTypeEntities>>(coverTypes);
         }
 
         // GET: api/CoverTypes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CoverType>> GetCoverType(int id)
+        public async Task<ActionResult<CoverTypeEntities>> GetCoverType(int id)
         {
           if (_context.CoverTypes == null)
           {
               return NotFound();
           }
-            var coverType = await _context.CoverTypes.FindAsync(id);
+            var coverType = await _context.CoverTypes.Include(e => e.Books).FirstOrDefaultAsync(e=>e.CoverTypeId == id);
 
             if (coverType == null)
             {
                 return NotFound();
             }
 
-            return coverType;
+            return _mapper.Map<CoverTypeEntities>(coverType);
         }
 
         // PUT: api/CoverTypes/5

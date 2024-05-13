@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models.FormModels;
+using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -26,31 +27,32 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<CategoryEntities>>> GetCategories()
         {
           if (_context.Categories == null)
           {
               return NotFound();
           }
-            return await _context.Categories.ToListAsync();
+          var categories = await _context.Categories.Include(e => e.Subcategories).ToListAsync();
+            return _mapper.Map<List<CategoryEntities>>(categories);
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Category>> GetCategory(int id)
+        public async Task<ActionResult<CategoryEntities>> GetCategory(int id)
         {
           if (_context.Categories == null)
           {
               return NotFound();
           }
-            var category = await _context.Categories.FindAsync(id);
+            var category = await _context.Categories.Include(e => e.Subcategories).FirstOrDefaultAsync(e=>e.CategoryId == id);
 
             if (category == null)
             {
                 return NotFound();
             }
 
-            return category;
+            return _mapper.Map<CategoryEntities>(category);
         }
 
         // PUT: api/Categories/5

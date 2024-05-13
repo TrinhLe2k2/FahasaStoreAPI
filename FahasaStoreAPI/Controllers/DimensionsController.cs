@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models.FormModels;
+using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -26,31 +27,32 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/Dimensions
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Dimension>>> GetDimensions()
+        public async Task<ActionResult<IEnumerable<DimensionEntities>>> GetDimensions()
         {
           if (_context.Dimensions == null)
           {
               return NotFound();
           }
-            return await _context.Dimensions.ToListAsync();
+          var dimensions = await _context.Dimensions.Include(e=>e.Books).ToListAsync();
+            return _mapper.Map<List<DimensionEntities>>(dimensions);
         }
 
         // GET: api/Dimensions/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Dimension>> GetDimension(int id)
+        public async Task<ActionResult<DimensionEntities>> GetDimension(int id)
         {
           if (_context.Dimensions == null)
           {
               return NotFound();
           }
-            var dimension = await _context.Dimensions.FindAsync(id);
+            var dimension = await _context.Dimensions.Include(e => e.Books).FirstOrDefaultAsync(e=> e.DimensionId == id);
 
             if (dimension == null)
             {
                 return NotFound();
             }
 
-            return dimension;
+            return _mapper.Map<DimensionEntities>(dimension);
         }
 
         // PUT: api/Dimensions/5

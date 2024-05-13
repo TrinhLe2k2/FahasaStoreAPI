@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models.FormModels;
+using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -26,13 +27,14 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/PartnerTypes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PartnerType>>> GetPartnerTypes()
+        public async Task<ActionResult<IEnumerable<PartnerTypeEntities>>> GetPartnerTypes()
         {
           if (_context.PartnerTypes == null)
           {
               return NotFound();
           }
-            return await _context.PartnerTypes.ToListAsync();
+          var partnerTypes = await _context.PartnerTypes.Include(e=>e.Partners).ToListAsync();
+            return _mapper.Map<List<PartnerTypeEntities>>(partnerTypes);
         }
 
         // GET: api/PartnerTypes/5
