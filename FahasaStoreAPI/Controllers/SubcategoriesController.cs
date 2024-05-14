@@ -56,6 +56,20 @@ namespace FahasaStoreAPI.Controllers
             return subcategory;
         }
 
+        [HttpGet("GetSubcategoriesByCategoryID/{id}")]
+        public async Task<ActionResult<IEnumerable<Subcategory>>> GetSubcategoriesByCategoryID(int id)
+        {
+            if (_context.Subcategories == null)
+            {
+                return NotFound();
+            }
+            var subcategories = await _context.Subcategories
+                .Include(e => e.Category)
+                .Include(e => e.Books)
+                .Where(e=>e.CategoryId == id).ToListAsync();
+            return subcategories;
+        }
+
         // PUT: api/Subcategories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
