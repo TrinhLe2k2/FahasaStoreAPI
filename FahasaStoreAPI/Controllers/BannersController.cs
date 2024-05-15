@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using FahasaStoreAPI.Models.BasicModels;
-using AutoMapper;
-using FahasaStoreAPI.Models.FormModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -17,12 +14,10 @@ namespace FahasaStoreAPI.Controllers
     public class BannersController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public BannersController(FahasaStoreDBContext context, IMapper mapper)
+        public BannersController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Banners
@@ -88,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/Banners
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Banner>> PostBanner(BannerForm bannerForm)
+        public async Task<ActionResult<Banner>> PostBanner(Banner banner)
         {
           if (_context.Banners == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.Banners'  is null.");
           }
-            var banner = _mapper.Map<Banner>(bannerForm);
             _context.Banners.Add(banner);
             await _context.SaveChangesAsync();
 

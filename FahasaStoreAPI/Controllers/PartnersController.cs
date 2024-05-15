@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using AutoMapper;
-using FahasaStoreAPI.Models.FormModels;
-using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -17,24 +14,21 @@ namespace FahasaStoreAPI.Controllers
     public class PartnersController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public PartnersController(FahasaStoreDBContext context, IMapper mapper)
+        public PartnersController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Partners
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PartnerEntities>>> GetPartners()
+        public async Task<ActionResult<IEnumerable<Partner>>> GetPartners()
         {
           if (_context.Partners == null)
           {
               return NotFound();
           }
-          var partners = await _context.Partners.Include(e => e.PartnerType).Include(e=>e.Books).ToListAsync();
-            return _mapper.Map<List<PartnerEntities>>(partners);
+            return await _context.Partners.Include(e => e.PartnerType).ToListAsync();
         }
 
         // GET: api/Partners/5
@@ -45,7 +39,7 @@ namespace FahasaStoreAPI.Controllers
           {
               return NotFound();
           }
-            var partner = await _context.Partners.FindAsync(id);
+            var partner = await _context.Partners.Include(e => e.PartnerType).FirstOrDefaultAsync(e=>e.PartnerId == id);
 
             if (partner == null)
             {
@@ -89,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/Partners
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Partner>> PostPartner(PartnerForm partnerForm)
+        public async Task<ActionResult<Partner>> PostPartner(Partner partner)
         {
           if (_context.Partners == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.Partners'  is null.");
           }
-            var partner = _mapper.Map<Partner>(partnerForm);
             _context.Partners.Add(partner);
             await _context.SaveChangesAsync();
 

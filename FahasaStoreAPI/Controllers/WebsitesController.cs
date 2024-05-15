@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using FahasaStoreAPI.Models.BasicModels;
-using AutoMapper;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -16,12 +14,10 @@ namespace FahasaStoreAPI.Controllers
     public class WebsitesController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public WebsitesController(FahasaStoreDBContext context, IMapper mapper)
+        public WebsitesController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Websites
@@ -87,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/Websites
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Website>> PostWebsite(WebsiteBasic websiteBasic)
+        public async Task<ActionResult<Website>> PostWebsite(Website website)
         {
           if (_context.Websites == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.Websites'  is null.");
           }
-            var website = _mapper.Map<Website>(websiteBasic);
             _context.Websites.Add(website);
             await _context.SaveChangesAsync();
 

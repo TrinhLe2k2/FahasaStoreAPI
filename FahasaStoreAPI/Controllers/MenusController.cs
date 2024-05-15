@@ -11,55 +11,55 @@ namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DimensionsController : ControllerBase
+    public class MenusController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
 
-        public DimensionsController(FahasaStoreDBContext context)
+        public MenusController(FahasaStoreDBContext context)
         {
             _context = context;
         }
 
-        // GET: api/Dimensions
+        // GET: api/Menus
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Dimension>>> GetDimensions()
+        public async Task<ActionResult<IEnumerable<Menu>>> GetMenus()
         {
-          if (_context.Dimensions == null)
+          if (_context.Menus == null)
           {
               return NotFound();
           }
-            return await _context.Dimensions.ToListAsync();
+            return await _context.Menus.ToListAsync();
         }
 
-        // GET: api/Dimensions/5
+        // GET: api/Menus/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Dimension>> GetDimension(int id)
+        public async Task<ActionResult<Menu>> GetMenu(int id)
         {
-          if (_context.Dimensions == null)
+          if (_context.Menus == null)
           {
               return NotFound();
           }
-            var dimension = await _context.Dimensions.FindAsync(id);
+            var menu = await _context.Menus.FindAsync(id);
 
-            if (dimension == null)
+            if (menu == null)
             {
                 return NotFound();
             }
 
-            return dimension;
+            return menu;
         }
 
-        // PUT: api/Dimensions/5
+        // PUT: api/Menus/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDimension(int id, Dimension dimension)
+        public async Task<IActionResult> PutMenu(int id, Menu menu)
         {
-            if (id != dimension.DimensionId)
+            if (id != menu.MenuId)
             {
                 return BadRequest();
             }
 
-            _context.Entry(dimension).State = EntityState.Modified;
+            _context.Entry(menu).State = EntityState.Modified;
 
             try
             {
@@ -67,7 +67,7 @@ namespace FahasaStoreAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!DimensionExists(id))
+                if (!MenuExists(id))
                 {
                     return NotFound();
                 }
@@ -80,44 +80,44 @@ namespace FahasaStoreAPI.Controllers
             return NoContent();
         }
 
-        // POST: api/Dimensions
+        // POST: api/Menus
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Dimension>> PostDimension(Dimension dimension)
+        public async Task<ActionResult<Menu>> PostMenu(Menu menu)
         {
-          if (_context.Dimensions == null)
+          if (_context.Menus == null)
           {
-              return Problem("Entity set 'FahasaStoreDBContext.Dimensions'  is null.");
+              return Problem("Entity set 'FahasaStoreDBContext.Menus'  is null.");
           }
-            _context.Dimensions.Add(dimension);
+            _context.Menus.Add(menu);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetDimension", new { id = dimension.DimensionId }, dimension);
+            return CreatedAtAction("GetMenu", new { id = menu.MenuId }, menu);
         }
 
-        // DELETE: api/Dimensions/5
+        // DELETE: api/Menus/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteDimension(int id)
+        public async Task<IActionResult> DeleteMenu(int id)
         {
-            if (_context.Dimensions == null)
+            if (_context.Menus == null)
             {
                 return NotFound();
             }
-            var dimension = await _context.Dimensions.FindAsync(id);
-            if (dimension == null)
+            var menu = await _context.Menus.FindAsync(id);
+            if (menu == null)
             {
                 return NotFound();
             }
 
-            _context.Dimensions.Remove(dimension);
+            _context.Menus.Remove(menu);
             await _context.SaveChangesAsync();
 
             return NoContent();
         }
 
-        private bool DimensionExists(int id)
+        private bool MenuExists(int id)
         {
-            return (_context.Dimensions?.Any(e => e.DimensionId == id)).GetValueOrDefault();
+            return (_context.Menus?.Any(e => e.MenuId == id)).GetValueOrDefault();
         }
     }
 }

@@ -1,8 +1,4 @@
-﻿using AutoMapper;
-using FahasaStoreAPI.Entities;
-using FahasaStoreAPI.Models.EntitiesModels;
-using NuGet.Common;
-using System.Text.RegularExpressions;
+﻿using FahasaStoreAPI.Entities;
 
 namespace FahasaStoreAPI.Services
 {

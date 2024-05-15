@@ -6,10 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using FahasaStoreAPI.Models.FormModels;
-using AutoMapper;
-using FahasaStoreAPI.Models.EntitiesModels;
-using FahasaStoreAPI.Models.BasicModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -18,41 +14,37 @@ namespace FahasaStoreAPI.Controllers
     public class BooksController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public BooksController(FahasaStoreDBContext context, IMapper mapper)
+        public BooksController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookEntities>>> GetBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-            if (_context.Books == null)
-            {
-                return NotFound();
-            }
-            var books = await _context.Books
-                  .Include(e => e.Author)
+          if (_context.Books == null)
+          {
+              return NotFound();
+          }
+            return await _context.Books
+                .Include(e => e.Author)
                   .Include(e => e.CoverType)
                   .Include(e => e.Dimension)
-                  .Include(e => e.Partner)
                   .Include(e => e.Subcategory)
                   .Include(e => e.CartItems)
                   .Include(e => e.FlashSaleBooks)
                   .Include(e => e.OrderItems)
                   .Include(e => e.PosterImages)
                   .Include(e => e.Reviews)
+                  .Include(e => e.BooksPartners)
                   .ToListAsync();
-            var booksEntities = _mapper.Map<List<BookEntities>>(books);
-            return booksEntities;
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BookEntities>> GetBook(int id)
+        public async Task<ActionResult<Book>> GetBook(int id)
         {
           if (_context.Books == null)
           {
@@ -62,50 +54,33 @@ namespace FahasaStoreAPI.Controllers
                 .Include(e => e.Author)
                   .Include(e => e.CoverType)
                   .Include(e => e.Dimension)
-                  .Include(e => e.Partner)
                   .Include(e => e.Subcategory)
                   .Include(e => e.CartItems)
                   .Include(e => e.FlashSaleBooks)
                   .Include(e => e.OrderItems)
                   .Include(e => e.PosterImages)
                   .Include(e => e.Reviews)
-                .FirstOrDefaultAsync(e => e.BookId == id);
+                  .Include(e => e.BooksPartners)
+                  .FirstOrDefaultAsync(e => e.BookId == id);
 
             if (book == null)
             {
                 return NotFound();
             }
 
-            return _mapper.Map<BookEntities>(book);
-        }
-
-        [HttpGet("PutBook/{id}")]
-        public async Task<ActionResult<BookForm>> PutBook(int id)
-        {
-            if (_context.Books == null)
-            {
-                return NotFound();
-            }
-            var book = await _context.Books.FirstOrDefaultAsync(e => e.BookId == id);
-
-            if (book == null)
-            {
-                return NotFound();
-            }
-
-            return _mapper.Map<BookForm>(book);
+            return book;
         }
 
         // PUT: api/Books/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutBook(int id, BookForm bookForm)
+        public async Task<IActionResult> PutBook(int id, Book book)
         {
-            var book = _mapper.Map<Book>(bookForm);
             if (id != book.BookId)
             {
                 return BadRequest();
             }
+
             _context.Entry(book).State = EntityState.Modified;
 
             try
@@ -130,13 +105,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/Books
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Book>> PostBook(BookForm bookForm)
+        public async Task<ActionResult<Book>> PostBook(Book book)
         {
           if (_context.Books == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.Books'  is null.");
           }
-          var book = _mapper.Map<Book>(bookForm);
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 

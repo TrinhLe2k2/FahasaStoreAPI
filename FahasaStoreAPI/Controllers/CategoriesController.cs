@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using AutoMapper;
-using FahasaStoreAPI.Models.FormModels;
-using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -17,29 +14,26 @@ namespace FahasaStoreAPI.Controllers
     public class CategoriesController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public CategoriesController(FahasaStoreDBContext context, IMapper mapper)
+        public CategoriesController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Categories
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CategoryEntities>>> GetCategories()
+        public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
         {
           if (_context.Categories == null)
           {
               return NotFound();
           }
-          var categories = await _context.Categories.Include(e => e.Subcategories).ToListAsync();
-            return _mapper.Map<List<CategoryEntities>>(categories);
+            return await _context.Categories.Include(e => e.Subcategories).ToListAsync();
         }
 
         // GET: api/Categories/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CategoryEntities>> GetCategory(int id)
+        public async Task<ActionResult<Category>> GetCategory(int id)
         {
           if (_context.Categories == null)
           {
@@ -52,7 +46,7 @@ namespace FahasaStoreAPI.Controllers
                 return NotFound();
             }
 
-            return _mapper.Map<CategoryEntities>(category);
+            return category;
         }
 
         // PUT: api/Categories/5
@@ -89,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/Categories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Category>> PostCategory(CategoryForm categoryForm)
+        public async Task<ActionResult<Category>> PostCategory(Category category)
         {
           if (_context.Categories == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.Categories'  is null.");
           }
-            var category = _mapper.Map<Category>(categoryForm);
             _context.Categories.Add(category);
             await _context.SaveChangesAsync();
 
@@ -120,6 +113,23 @@ namespace FahasaStoreAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("GetSubcategories/{id}")]
+        public async Task<ActionResult<IEnumerable<Subcategory>>> GetSubcategories(int id)
+        {
+            if (_context.Categories == null)
+            {
+                return NotFound();
+            }
+            var category = await _context.Categories.Include(e => e.Subcategories).FirstOrDefaultAsync(e => e.CategoryId == id);
+
+            if (category == null)
+            {
+                return NotFound();
+            }
+            var subcategories = category.Subcategories.ToList();
+            return subcategories;
         }
 
         private bool CategoryExists(int id)

@@ -20,6 +20,7 @@ namespace FahasaStoreAPI.Entities
         public virtual DbSet<Author> Authors { get; set; } = null!;
         public virtual DbSet<Banner> Banners { get; set; } = null!;
         public virtual DbSet<Book> Books { get; set; } = null!;
+        public virtual DbSet<BooksPartner> BooksPartners { get; set; } = null!;
         public virtual DbSet<Cart> Carts { get; set; } = null!;
         public virtual DbSet<CartItem> CartItems { get; set; } = null!;
         public virtual DbSet<Category> Categories { get; set; } = null!;
@@ -95,8 +96,8 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Addresses)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Address__user_id__6D0D32F4");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Address__user_id__6FE99F9F");
             });
 
             modelBuilder.Entity<Author>(entity =>
@@ -153,8 +154,6 @@ namespace FahasaStoreAPI.Entities
 
                 entity.Property(e => e.PageCount).HasColumnName("page_count");
 
-                entity.Property(e => e.PartnerId).HasColumnName("partner_id");
-
                 entity.Property(e => e.Quantity).HasColumnName("quantity");
 
                 entity.Property(e => e.SubcategoryId).HasColumnName("subcategory_id");
@@ -164,32 +163,54 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Author)
                     .WithMany(p => p.Books)
                     .HasForeignKey(d => d.AuthorId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Books__author_id__5BE2A6F2");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Books__author_id__5AEE82B9");
 
                 entity.HasOne(d => d.CoverType)
                     .WithMany(p => p.Books)
                     .HasForeignKey(d => d.CoverTypeId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Books__cover_typ__5CD6CB2B");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Books__cover_typ__5BE2A6F2");
 
                 entity.HasOne(d => d.Dimension)
                     .WithMany(p => p.Books)
                     .HasForeignKey(d => d.DimensionId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Books__dimension__5DCAEF64");
-
-                entity.HasOne(d => d.Partner)
-                    .WithMany(p => p.Books)
-                    .HasForeignKey(d => d.PartnerId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Books__partner_i__5AEE82B9");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Books__dimension__5CD6CB2B");
 
                 entity.HasOne(d => d.Subcategory)
                     .WithMany(p => p.Books)
                     .HasForeignKey(d => d.SubcategoryId)
-                    .OnDelete(DeleteBehavior.Cascade)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK__Books__subcatego__59FA5E80");
+            });
+
+            modelBuilder.Entity<BooksPartner>(entity =>
+            {
+                entity.HasKey(e => e.BooksPartnersId)
+                    .HasName("PK__BooksPar__5DB91DD9A1C825ED");
+
+                entity.Property(e => e.BooksPartnersId).HasColumnName("booksPartners_id");
+
+                entity.Property(e => e.BookId).HasColumnName("book_id");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnType("datetime")
+                    .HasColumnName("created_at");
+
+                entity.Property(e => e.PartnerId).HasColumnName("partner_id");
+
+                entity.HasOne(d => d.Book)
+                    .WithMany(p => p.BooksPartners)
+                    .HasForeignKey(d => d.BookId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__BooksPart__book___5FB337D6");
+
+                entity.HasOne(d => d.Partner)
+                    .WithMany(p => p.BooksPartners)
+                    .HasForeignKey(d => d.PartnerId)
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__BooksPart__partn__60A75C0F");
             });
 
             modelBuilder.Entity<Cart>(entity =>
@@ -205,8 +226,8 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Carts)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Carts__user_id__04E4BC85");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Carts__user_id__07C12930");
             });
 
             modelBuilder.Entity<CartItem>(entity =>
@@ -222,14 +243,14 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.CartItems)
                     .HasForeignKey(d => d.BookId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__CartItems__book___08B54D69");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__CartItems__book___0B91BA14");
 
                 entity.HasOne(d => d.Cart)
                     .WithMany(p => p.CartItems)
                     .HasForeignKey(d => d.CartId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__CartItems__cart___07C12930");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__CartItems__cart___0A9D95DB");
             });
 
             modelBuilder.Entity<Category>(entity =>
@@ -295,14 +316,14 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.FlashSaleBooks)
                     .HasForeignKey(d => d.BookId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__FlashSale__book___66603565");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__FlashSale__book___693CA210");
 
                 entity.HasOne(d => d.FlashSale)
                     .WithMany(p => p.FlashSaleBooks)
                     .HasForeignKey(d => d.FlashSaleId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__FlashSale__flash__656C112C");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__FlashSale__flash__68487DD7");
             });
 
             modelBuilder.Entity<Help>(entity =>
@@ -329,7 +350,7 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Help)
                     .WithMany(p => p.HelpContents)
                     .HasForeignKey(d => d.HelpId)
-                    .OnDelete(DeleteBehavior.Cascade)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK__HelpConte__help___412EB0B6");
             });
 
@@ -371,14 +392,14 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.NotificationType)
                     .WithMany(p => p.Notifications)
                     .HasForeignKey(d => d.NotificationTypeId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Notificat__notif__0D7A0286");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Notificat__notif__10566F31");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Notifications)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Notificat__user___0E6E26BF");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Notificat__user___114A936A");
             });
 
             modelBuilder.Entity<NotificationType>(entity =>
@@ -413,25 +434,26 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Address)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.AddressId)
-                    .HasConstraintName("FK__Orders__address___75A278F5");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Orders__address___787EE5A0");
 
                 entity.HasOne(d => d.PaymentMethod)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.PaymentMethodId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK__Orders__payment___76969D2E");
+                    .HasConstraintName("FK__Orders__payment___797309D9");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Orders__user_id__73BA3083");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Orders__user_id__76969D2E");
 
                 entity.HasOne(d => d.Voucher)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.VoucherId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK__Orders__voucher___74AE54BC");
+                    .HasConstraintName("FK__Orders__voucher___778AC167");
             });
 
             modelBuilder.Entity<OrderItem>(entity =>
@@ -447,14 +469,14 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.OrderItems)
                     .HasForeignKey(d => d.BookId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__OrderItem__book___02084FDA");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__OrderItem__book___04E4BC85");
 
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.OrderItems)
                     .HasForeignKey(d => d.OrderId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__OrderItem__order__01142BA1");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__OrderItem__order__03F0984C");
             });
 
             modelBuilder.Entity<OrderStatus>(entity =>
@@ -474,14 +496,14 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.OrderStatuses)
                     .HasForeignKey(d => d.OrderId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__OrderStat__order__797309D9");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__OrderStat__order__7C4F7684");
 
                 entity.HasOne(d => d.Status)
                     .WithMany(p => p.OrderStatuses)
                     .HasForeignKey(d => d.StatusId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__OrderStat__statu__7A672E12");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__OrderStat__statu__7D439ABD");
             });
 
             modelBuilder.Entity<Partner>(entity =>
@@ -511,7 +533,7 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.PartnerType)
                     .WithMany(p => p.Partners)
                     .HasForeignKey(d => d.PartnerTypeId)
-                    .OnDelete(DeleteBehavior.Cascade)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK__Partners__partne__5165187F");
             });
 
@@ -537,14 +559,14 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.Payments)
                     .HasForeignKey(d => d.OrderId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Payments__order___7D439ABD");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Payments__order___00200768");
 
                 entity.HasOne(d => d.PaymentMethod)
                     .WithMany(p => p.Payments)
                     .HasForeignKey(d => d.PaymentMethodId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Payments__paymen__7E37BEF6");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Payments__paymen__01142BA1");
             });
 
             modelBuilder.Entity<PaymentMethod>(entity =>
@@ -563,7 +585,7 @@ namespace FahasaStoreAPI.Entities
             modelBuilder.Entity<PosterImage>(entity =>
             {
                 entity.HasKey(e => e.PosterImgageId)
-                    .HasName("PK__PosterIm__E985DEF2F436A5C4");
+                    .HasName("PK__PosterIm__E985DEF2B89CC2A3");
 
                 entity.Property(e => e.PosterImgageId).HasColumnName("posterImgage_id");
 
@@ -576,8 +598,8 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.PosterImages)
                     .HasForeignKey(d => d.BookId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__PosterIma__book___60A75C0F");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__PosterIma__book___6383C8BA");
             });
 
             modelBuilder.Entity<Review>(entity =>
@@ -599,14 +621,14 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Book)
                     .WithMany(p => p.Reviews)
                     .HasForeignKey(d => d.BookId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Reviews__book_id__693CA210");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Reviews__book_id__6C190EBB");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Reviews)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK__Reviews__user_id__6A30C649");
+                    .OnDelete(DeleteBehavior.SetNull)
+                    .HasConstraintName("FK__Reviews__user_id__6D0D32F4");
             });
 
             modelBuilder.Entity<Role>(entity =>
@@ -621,7 +643,7 @@ namespace FahasaStoreAPI.Entities
             modelBuilder.Entity<SocialMediaLink>(entity =>
             {
                 entity.HasKey(e => e.LinkId)
-                    .HasName("PK__SocialMe__93B0078C160124AC");
+                    .HasName("PK__SocialMe__93B0078CBFA8A93A");
 
                 entity.Property(e => e.LinkId).HasColumnName("link_id");
 
@@ -662,7 +684,7 @@ namespace FahasaStoreAPI.Entities
                 entity.HasOne(d => d.Category)
                     .WithMany(p => p.Subcategories)
                     .HasForeignKey(d => d.CategoryId)
-                    .OnDelete(DeleteBehavior.Cascade)
+                    .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK__Subcatego__categ__4CA06362");
             });
 

@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using AutoMapper;
-using FahasaStoreAPI.Models.FormModels;
-using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -17,42 +14,39 @@ namespace FahasaStoreAPI.Controllers
     public class CoverTypesController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public CoverTypesController(FahasaStoreDBContext context, IMapper mapper)
+        public CoverTypesController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/CoverTypes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CoverTypeEntities>>> GetCoverTypes()
+        public async Task<ActionResult<IEnumerable<CoverType>>> GetCoverTypes()
         {
           if (_context.CoverTypes == null)
           {
               return NotFound();
           }
-          var coverTypes = await _context.CoverTypes.Include(e=>e.Books).ToListAsync();
-            return _mapper.Map<List<CoverTypeEntities>>(coverTypes);
+            return await _context.CoverTypes.ToListAsync();
         }
 
         // GET: api/CoverTypes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<CoverTypeEntities>> GetCoverType(int id)
+        public async Task<ActionResult<CoverType>> GetCoverType(int id)
         {
           if (_context.CoverTypes == null)
           {
               return NotFound();
           }
-            var coverType = await _context.CoverTypes.Include(e => e.Books).FirstOrDefaultAsync(e=>e.CoverTypeId == id);
+            var coverType = await _context.CoverTypes.FindAsync(id);
 
             if (coverType == null)
             {
                 return NotFound();
             }
 
-            return _mapper.Map<CoverTypeEntities>(coverType);
+            return coverType;
         }
 
         // PUT: api/CoverTypes/5
@@ -89,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/CoverTypes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<CoverType>> PostCoverType(CoverTypeForm coverTypeForm)
+        public async Task<ActionResult<CoverType>> PostCoverType(CoverType coverType)
         {
           if (_context.CoverTypes == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.CoverTypes'  is null.");
           }
-            var coverType = _mapper.Map<CoverType>(coverTypeForm);
             _context.CoverTypes.Add(coverType);
             await _context.SaveChangesAsync();
 

@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using AutoMapper;
-using FahasaStoreAPI.Models.FormModels;
-using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -17,49 +14,46 @@ namespace FahasaStoreAPI.Controllers
     public class AuthorsController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
-        public AuthorsController(FahasaStoreDBContext context, IMapper mapper)
+
+        public AuthorsController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Authors
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<AuthorEntities>>> GetAuthors()
+        public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
         {
           if (_context.Authors == null)
           {
               return NotFound();
           }
-          var author = await _context.Authors.Include(e => e.Books).Include(e=>e.Books).ToListAsync();
-            return _mapper.Map<List<AuthorEntities>>(author);
+            return await _context.Authors.Include(e=>e.Books).ToListAsync();
         }
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<AuthorEntities>> GetAuthor(int id)
+        public async Task<ActionResult<Author>> GetAuthor(int id)
         {
           if (_context.Authors == null)
           {
               return NotFound();
           }
-            var author = await _context.Authors.Include(e => e.Books).FirstOrDefaultAsync(e => e.AuthorId == id);
+            var author = await _context.Authors.Include(e => e.Books).FirstOrDefaultAsync(e=>e.AuthorId == id);
 
             if (author == null)
             {
                 return NotFound();
             }
 
-            return _mapper.Map<AuthorEntities>(author);
+            return author;
         }
 
         // PUT: api/Authors/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, AuthorForm authorForm)
+        public async Task<IActionResult> PutAuthor(int id, Author author)
         {
-            var author = _mapper.Map<Author>(authorForm);
             if (id != author.AuthorId)
             {
                 return BadRequest();
@@ -89,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/Authors
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Author>> PostAuthor(AuthorForm authorForm)
+        public async Task<ActionResult<Author>> PostAuthor(Author author)
         {
           if (_context.Authors == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.Authors'  is null.");
           }
-            var author = _mapper.Map<Author>(authorForm);
             _context.Authors.Add(author);
             await _context.SaveChangesAsync();
 

@@ -13,7 +13,7 @@ namespace FahasaStoreAPI.Entities
 
         public int PaymentMethodId { get; set; }
         public string Name { get; set; } = null!;
-        public string? ImageUrl { get; set; }
+        public string ImageUrl { get; set; } = null!;
         public bool Active { get; set; }
 
         public virtual ICollection<Order> Orders { get; set; }

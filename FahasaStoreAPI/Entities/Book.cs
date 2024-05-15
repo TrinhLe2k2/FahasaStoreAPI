@@ -7,6 +7,7 @@ namespace FahasaStoreAPI.Entities
     {
         public Book()
         {
+            BooksPartners = new HashSet<BooksPartner>();
             CartItems = new HashSet<CartItem>();
             FlashSaleBooks = new HashSet<FlashSaleBook>();
             OrderItems = new HashSet<OrderItem>();
@@ -16,7 +17,6 @@ namespace FahasaStoreAPI.Entities
 
         public int BookId { get; set; }
         public int? SubcategoryId { get; set; }
-        public int? PartnerId { get; set; }
         public int? AuthorId { get; set; }
         public int? CoverTypeId { get; set; }
         public int? DimensionId { get; set; }
@@ -32,8 +32,8 @@ namespace FahasaStoreAPI.Entities
         public virtual Author? Author { get; set; }
         public virtual CoverType? CoverType { get; set; }
         public virtual Dimension? Dimension { get; set; }
-        public virtual Partner? Partner { get; set; }
         public virtual Subcategory? Subcategory { get; set; }
+        public virtual ICollection<BooksPartner> BooksPartners { get; set; }
         public virtual ICollection<CartItem> CartItems { get; set; }
         public virtual ICollection<FlashSaleBook> FlashSaleBooks { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }

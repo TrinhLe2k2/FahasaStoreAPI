@@ -6,9 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using AutoMapper;
-using FahasaStoreAPI.Models.FormModels;
-using FahasaStoreAPI.Models.EntitiesModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -17,24 +14,21 @@ namespace FahasaStoreAPI.Controllers
     public class PartnerTypesController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public PartnerTypesController(FahasaStoreDBContext context, IMapper mapper)
+        public PartnerTypesController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/PartnerTypes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<PartnerTypeEntities>>> GetPartnerTypes()
+        public async Task<ActionResult<IEnumerable<PartnerType>>> GetPartnerTypes()
         {
           if (_context.PartnerTypes == null)
           {
               return NotFound();
           }
-          var partnerTypes = await _context.PartnerTypes.Include(e=>e.Partners).ToListAsync();
-            return _mapper.Map<List<PartnerTypeEntities>>(partnerTypes);
+            return await _context.PartnerTypes.Include(e=>e.Partners).ToListAsync();
         }
 
         // GET: api/PartnerTypes/5
@@ -45,7 +39,7 @@ namespace FahasaStoreAPI.Controllers
           {
               return NotFound();
           }
-            var partnerType = await _context.PartnerTypes.FindAsync(id);
+            var partnerType = await _context.PartnerTypes.FirstOrDefaultAsync(e=>e.PartnerTypeId == id);
 
             if (partnerType == null)
             {
@@ -89,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/PartnerTypes
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<PartnerType>> PostPartnerType(PartnerTypeForm partnerTypeForm)
+        public async Task<ActionResult<PartnerType>> PostPartnerType(PartnerType partnerType)
         {
           if (_context.PartnerTypes == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.PartnerTypes'  is null.");
           }
-            var partnerType = _mapper.Map<PartnerType>(partnerTypeForm);
             _context.PartnerTypes.Add(partnerType);
             await _context.SaveChangesAsync();
 
@@ -120,6 +113,23 @@ namespace FahasaStoreAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("GetPartnersByType/{id}")]
+        public async Task<ActionResult<IEnumerable<Partner>>> GetPartnersByType(int id)
+        {
+            if (_context.PartnerTypes == null)
+            {
+                return NotFound();
+            }
+            var partnerType = await _context.PartnerTypes.Include(e => e.Partners).FirstOrDefaultAsync(e => e.PartnerTypeId == id);
+
+            if (partnerType == null)
+            {
+                return NotFound();
+            }
+            var partners = partnerType.Partners.ToList();
+            return partners;
         }
 
         private bool PartnerTypeExists(int id)

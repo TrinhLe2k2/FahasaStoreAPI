@@ -1,12 +1,8 @@
 ﻿using AutoMapper;
 using FahasaStoreAPI.Entities;
-using FahasaStoreAPI.Models.EntitiesModels;
-using FahasaStoreAPI.Models.FormModels;
 using FahasaStoreAPI.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using static System.Reflection.Metadata.BlobBuilder;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -40,13 +36,13 @@ namespace FahasaStoreAPI.Controllers
                 .Include(e => e.Author)
                   .Include(e => e.CoverType)
                   .Include(e => e.Dimension)
-                  .Include(e => e.Partner)
                   .Include(e => e.Subcategory)
                   .Include(e => e.CartItems)
                   .Include(e => e.FlashSaleBooks)
                   .Include(e => e.OrderItems)
                   .Include(e => e.PosterImages)
                   .Include(e => e.Reviews)
+                  .Include(e => e.BooksPartners)
                 .FirstOrDefaultAsync(e => e.BookId == itemId);
                 if (book != null)
                 {
@@ -57,7 +53,7 @@ namespace FahasaStoreAPI.Controllers
                     }
                 }
             }
-            return Ok(_mapper.Map<List<BookEntities>>(result));
+            return Ok(_mapper.Map<List<Book>>(result));
         }
     }
 

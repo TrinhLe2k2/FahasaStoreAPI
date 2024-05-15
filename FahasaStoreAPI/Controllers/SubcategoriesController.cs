@@ -6,8 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using AutoMapper;
-using FahasaStoreAPI.Models.FormModels;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -16,12 +14,10 @@ namespace FahasaStoreAPI.Controllers
     public class SubcategoriesController : ControllerBase
     {
         private readonly FahasaStoreDBContext _context;
-        private readonly IMapper _mapper;
 
-        public SubcategoriesController(FahasaStoreDBContext context, IMapper mapper)
+        public SubcategoriesController(FahasaStoreDBContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         // GET: api/Subcategories
@@ -32,10 +28,7 @@ namespace FahasaStoreAPI.Controllers
           {
               return NotFound();
           }
-            return await _context.Subcategories
-                .Include(e=>e.Category)
-                .Include(e=>e.Books)
-                .ToListAsync();
+            return await _context.Subcategories.Include(e=>e.Category).ToListAsync();
         }
 
         // GET: api/Subcategories/5
@@ -46,7 +39,7 @@ namespace FahasaStoreAPI.Controllers
           {
               return NotFound();
           }
-            var subcategory = await _context.Subcategories.FindAsync(id);
+            var subcategory = await _context.Subcategories.Include(e => e.Category).FirstOrDefaultAsync(e => e.SubcategoryId == id);
 
             if (subcategory == null)
             {
@@ -56,26 +49,11 @@ namespace FahasaStoreAPI.Controllers
             return subcategory;
         }
 
-        [HttpGet("GetSubcategoriesByCategoryID/{id}")]
-        public async Task<ActionResult<IEnumerable<Subcategory>>> GetSubcategoriesByCategoryID(int id)
-        {
-            if (_context.Subcategories == null)
-            {
-                return NotFound();
-            }
-            var subcategories = await _context.Subcategories
-                .Include(e => e.Category)
-                .Include(e => e.Books)
-                .Where(e=>e.CategoryId == id).ToListAsync();
-            return subcategories;
-        }
-
         // PUT: api/Subcategories/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSubcategory(int id, SubcategoryForm subcategoryForm)
+        public async Task<IActionResult> PutSubcategory(int id, Subcategory subcategory)
         {
-            var subcategory = _mapper.Map<Subcategory>(subcategoryForm);
             if (id != subcategory.SubcategoryId)
             {
                 return BadRequest();
@@ -105,13 +83,12 @@ namespace FahasaStoreAPI.Controllers
         // POST: api/Subcategories
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<Subcategory>> PostSubcategory(SubcategoryForm subcategoryForm)
+        public async Task<ActionResult<Subcategory>> PostSubcategory(Subcategory subcategory)
         {
           if (_context.Subcategories == null)
           {
               return Problem("Entity set 'FahasaStoreDBContext.Subcategories'  is null.");
           }
-            var subcategory = _mapper.Map<Subcategory>(subcategoryForm);
             _context.Subcategories.Add(subcategory);
             await _context.SaveChangesAsync();
 
