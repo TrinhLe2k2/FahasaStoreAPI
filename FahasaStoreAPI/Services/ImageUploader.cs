@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet.Actions;
 using CloudinaryDotNet;
+using Microsoft.AspNetCore.Mvc;
 
 namespace BookStoreAPI.Services
 {
@@ -21,16 +22,11 @@ namespace BookStoreAPI.Services
 
         public async Task<UploadResult> UploadImageAsync(IFormFile file)
         {
-            if (file == null || file.Length == 0)
-            {
-                
-            }
-
-            using (var stream = file.OpenReadStream())
+            using (var stream = file?.OpenReadStream())
             {
                 var uploadParams = new ImageUploadParams
                 {
-                    File = new FileDescription(file.FileName, stream),
+                    File = new FileDescription(file?.FileName, stream),
                     // You can add more parameters here, like folder, tags, etc.
                 };
 

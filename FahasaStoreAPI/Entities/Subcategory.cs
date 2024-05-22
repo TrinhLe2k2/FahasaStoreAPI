@@ -13,6 +13,7 @@ namespace FahasaStoreAPI.Entities
         public int SubcategoryId { get; set; }
         public int? CategoryId { get; set; }
         public string Name { get; set; } = null!;
+        public string? PublicId { get; set; }
         public string ImageUrl { get; set; } = null!;
 
         public virtual Category? Category { get; set; }

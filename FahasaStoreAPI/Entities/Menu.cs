@@ -8,6 +8,7 @@ namespace FahasaStoreAPI.Entities
         public int MenuId { get; set; }
         public string Name { get; set; } = null!;
         public string Link { get; set; } = null!;
+        public string? PublicId { get; set; }
         public string ImageUrl { get; set; } = null!;
     }
 }

@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using AutoMapper;
 using FahasaStoreAPI.Services;
+using Microsoft.EntityFrameworkCore.Update;
+using BookStoreAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,8 +27,8 @@ builder.Services.AddMvc(option => option.EnableEndpointRouting = false)
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-//builder.Services.AddHttpClient();
-//builder.Services.AddScoped<IBookRecommendationSystem, BookRecommendationSystem>();
+builder.Services.AddHttpClient();
+builder.Services.AddScoped<IImageUploader, ImageUploader>();
 
 var app = builder.Build();
 

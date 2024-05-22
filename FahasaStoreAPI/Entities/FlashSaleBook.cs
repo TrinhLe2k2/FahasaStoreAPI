@@ -8,9 +8,8 @@ namespace FahasaStoreAPI.Entities
         public int FlashSaleBookId { get; set; }
         public int? FlashSaleId { get; set; }
         public int? BookId { get; set; }
-        public double DiscountPercentage { get; set; }
+        public int DiscountPercentage { get; set; }
         public int Quantity { get; set; }
-        public int Sold { get; set; }
 
         public virtual Book? Book { get; set; }
         public virtual FlashSale? FlashSale { get; set; }

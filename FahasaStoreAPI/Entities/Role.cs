@@ -11,7 +11,7 @@ namespace FahasaStoreAPI.Entities
         }
 
         public int RoleId { get; set; }
-        public string Name { get; set; } = null!;
+        public string RoleName { get; set; } = null!;
 
         public virtual ICollection<User> Users { get; set; }
     }

@@ -7,7 +7,7 @@ namespace FahasaStoreAPI.Entities
     {
         public Partner()
         {
-            BooksPartners = new HashSet<BooksPartner>();
+            BookPartners = new HashSet<BookPartner>();
         }
 
         public int PartnerId { get; set; }
@@ -16,9 +16,10 @@ namespace FahasaStoreAPI.Entities
         public string Address { get; set; } = null!;
         public string Phone { get; set; } = null!;
         public string Email { get; set; } = null!;
+        public string? PublicId { get; set; }
         public string ImageUrl { get; set; } = null!;
 
         public virtual PartnerType? PartnerType { get; set; }
-        public virtual ICollection<BooksPartner> BooksPartners { get; set; }
+        public virtual ICollection<BookPartner> BookPartners { get; set; }
     }
 }

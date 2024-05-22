@@ -42,7 +42,7 @@ namespace FahasaStoreAPI.Controllers
                   .Include(e => e.OrderItems)
                   .Include(e => e.PosterImages)
                   .Include(e => e.Reviews)
-                  .Include(e => e.BooksPartners)
+                  .Include(e => e.BookPartners)
                 .FirstOrDefaultAsync(e => e.BookId == itemId);
                 if (book != null)
                 {

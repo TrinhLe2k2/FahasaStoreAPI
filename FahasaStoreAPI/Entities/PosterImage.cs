@@ -5,10 +5,11 @@ namespace FahasaStoreAPI.Entities
 {
     public partial class PosterImage
     {
-        public int PosterImgageId { get; set; }
+        public int PosterImageId { get; set; }
         public int? BookId { get; set; }
+        public string? PublicId { get; set; }
         public string ImageUrl { get; set; } = null!;
-        public bool PosterDefault { get; set; }
+        public bool ImageDefault { get; set; }
 
         public virtual Book? Book { get; set; }
     }

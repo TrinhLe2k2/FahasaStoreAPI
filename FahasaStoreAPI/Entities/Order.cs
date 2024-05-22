@@ -9,7 +9,6 @@ namespace FahasaStoreAPI.Entities
         {
             OrderItems = new HashSet<OrderItem>();
             OrderStatuses = new HashSet<OrderStatus>();
-            Payments = new HashSet<Payment>();
         }
 
         public int OrderId { get; set; }
@@ -18,14 +17,14 @@ namespace FahasaStoreAPI.Entities
         public int? AddressId { get; set; }
         public int? PaymentMethodId { get; set; }
         public DateTime OrderDate { get; set; }
-        public string? Description { get; set; }
+        public string? Note { get; set; }
 
         public virtual Address? Address { get; set; }
         public virtual PaymentMethod? PaymentMethod { get; set; }
         public virtual User? User { get; set; }
         public virtual Voucher? Voucher { get; set; }
+        public virtual Payment? Payment { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual ICollection<OrderStatus> OrderStatuses { get; set; }
-        public virtual ICollection<Payment> Payments { get; set; }
     }
 }

@@ -57,7 +57,7 @@ namespace FahasaStoreAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPosterImage(int id, PosterImage posterImage)
         {
-            if (id != posterImage.PosterImgageId)
+            if (id != posterImage.PosterImageId)
             {
                 return BadRequest();
             }
@@ -95,7 +95,7 @@ namespace FahasaStoreAPI.Controllers
             _context.PosterImages.Add(posterImage);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction("GetPosterImage", new { id = posterImage.PosterImgageId }, posterImage);
+            return CreatedAtAction("GetPosterImage", new { id = posterImage.PosterImageId }, posterImage);
         }
 
         // DELETE: api/PosterImages/5
@@ -120,7 +120,7 @@ namespace FahasaStoreAPI.Controllers
 
         private bool PosterImageExists(int id)
         {
-            return (_context.PosterImages?.Any(e => e.PosterImgageId == id)).GetValueOrDefault();
+            return (_context.PosterImages?.Any(e => e.PosterImageId == id)).GetValueOrDefault();
         }
     }
 }

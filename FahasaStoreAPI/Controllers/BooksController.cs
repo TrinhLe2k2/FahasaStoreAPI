@@ -38,7 +38,7 @@ namespace FahasaStoreAPI.Controllers
                   .Include(e => e.OrderItems)
                   .Include(e => e.PosterImages)
                   .Include(e => e.Reviews)
-                  .Include(e => e.BooksPartners)
+                  .Include(e => e.BookPartners)
                   .ToListAsync();
         }
 
@@ -60,7 +60,7 @@ namespace FahasaStoreAPI.Controllers
                   .Include(e => e.OrderItems)
                   .Include(e => e.PosterImages)
                   .Include(e => e.Reviews)
-                  .Include(e => e.BooksPartners)
+                  .Include(e => e.BookPartners)
                   .FirstOrDefaultAsync(e => e.BookId == id);
 
             if (book == null)
@@ -135,6 +135,25 @@ namespace FahasaStoreAPI.Controllers
             await _context.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpGet("GetPosterImages/{id}")]
+        public async Task<ActionResult<IEnumerable<PosterImage>>> GetPosterImages(int id)
+        {
+            if (_context.Books == null)
+            {
+                return NotFound();
+            }
+            var book = await _context.Books
+                  .Include(e => e.PosterImages)
+                  .FirstOrDefaultAsync(e => e.BookId == id);
+
+            if (book == null)
+            {
+                return NotFound();
+            }
+            var posterImages = book.PosterImages.ToList();
+            return posterImages;
         }
 
         private bool BookExists(int id)

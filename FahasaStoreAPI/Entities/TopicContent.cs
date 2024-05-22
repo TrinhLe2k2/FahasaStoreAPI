@@ -3,13 +3,13 @@ using System.Collections.Generic;
 
 namespace FahasaStoreAPI.Entities
 {
-    public partial class HelpContent
+    public partial class TopicContent
     {
-        public int HelpContentId { get; set; }
-        public int? HelpId { get; set; }
+        public int TopicContentId { get; set; }
+        public int? TopicId { get; set; }
         public string Title { get; set; } = null!;
         public string Content { get; set; } = null!;
 
-        public virtual Help? Help { get; set; }
+        public virtual Topic? Topic { get; set; }
     }
 }

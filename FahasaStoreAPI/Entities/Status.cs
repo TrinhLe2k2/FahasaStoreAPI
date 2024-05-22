@@ -12,7 +12,6 @@ namespace FahasaStoreAPI.Entities
 
         public int StatusId { get; set; }
         public string Name { get; set; } = null!;
-        public bool Active { get; set; }
 
         public virtual ICollection<OrderStatus> OrderStatuses { get; set; }
     }

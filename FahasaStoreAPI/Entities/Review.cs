@@ -11,6 +11,7 @@ namespace FahasaStoreAPI.Entities
         public int Rating { get; set; }
         public string? Comment { get; set; }
         public DateTime ReviewDate { get; set; }
+        public bool Active { get; set; }
 
         public virtual Book? Book { get; set; }
         public virtual User? User { get; set; }
