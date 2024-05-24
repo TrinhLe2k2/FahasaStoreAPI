@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
+using System.Drawing.Printing;
+using X.PagedList;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -24,10 +26,10 @@ namespace FahasaStoreAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Book>>> GetBooks()
         {
-          if (_context.Books == null)
-          {
-              return NotFound();
-          }
+            if (_context.Books == null)
+            {
+                return NotFound();
+            }
             return await _context.Books
                 .Include(e => e.Author)
                   .Include(e => e.CoverType)
@@ -42,14 +44,51 @@ namespace FahasaStoreAPI.Controllers
                   .ToListAsync();
         }
 
+        [HttpGet("GetBooksPagination")]
+        public async Task<ActionResult<IPagedList<Book>>> GetBooksPagination(int? page, int? size)
+        {
+            if (_context.Books == null)
+            {
+                return NotFound();
+            }
+
+            int pageNumber = page ?? 1;
+            int pageSize = size ?? 10;
+
+            var booksQuery = _context.Books
+                .Include(e => e.Author)
+                .Include(e => e.CoverType)
+                .Include(e => e.Dimension)
+                .Include(e => e.Subcategory)
+                .Include(e => e.CartItems)
+                .Include(e => e.FlashSaleBooks)
+                .Include(e => e.OrderItems)
+                .Include(e => e.PosterImages)
+                .Include(e => e.Reviews)
+                .Include(e => e.BookPartners)
+                .AsQueryable();  // Quan trọng: Sử dụng IQueryable thay vì ToListAsync
+
+            var pagedList = await booksQuery.ToPagedListAsync(pageNumber, pageSize);
+            var result = new
+            {
+                books = pagedList.ToList(),
+                pageCount = pagedList.PageCount,
+                pageNumber = pagedList.PageNumber,
+                pageSize = pagedList.PageSize
+            };
+
+            return Ok(result);
+        }
+
+
         // GET: api/Books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Book>> GetBook(int id)
         {
-          if (_context.Books == null)
-          {
-              return NotFound();
-          }
+            if (_context.Books == null)
+            {
+                return NotFound();
+            }
             var book = await _context.Books
                 .Include(e => e.Author)
                   .Include(e => e.CoverType)
@@ -107,10 +146,10 @@ namespace FahasaStoreAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Book>> PostBook(Book book)
         {
-          if (_context.Books == null)
-          {
-              return Problem("Entity set 'FahasaStoreDBContext.Books'  is null.");
-          }
+            if (_context.Books == null)
+            {
+                return Problem("Entity set 'FahasaStoreDBContext.Books'  is null.");
+            }
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
 
