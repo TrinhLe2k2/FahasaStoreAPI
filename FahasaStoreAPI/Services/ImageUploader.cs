@@ -2,7 +2,7 @@
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BookStoreAPI.Services
+namespace BookStoreAPI.Repositories
 {
     public interface IImageUploader
     {

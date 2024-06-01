@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
+using Microsoft.AspNetCore.Authorization;
+using FahasaStoreAPI.Helpers;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -22,6 +24,8 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/Authors
         [HttpGet]
+        //[Authorize]
+        //[Authorize(Roles = AppRole.Customer)]
         public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
         {
           if (_context.Authors == null)
@@ -33,6 +37,7 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/Authors/5
         [HttpGet("{id}")]
+        //[Authorize]
         public async Task<ActionResult<Author>> GetAuthor(int id)
         {
           if (_context.Authors == null)

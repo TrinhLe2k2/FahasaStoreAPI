@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using FahasaStoreAPI.Entities;
-using FahasaStoreAPI.Services;
+using FahasaStoreAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

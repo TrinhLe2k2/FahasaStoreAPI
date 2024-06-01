@@ -11,7 +11,7 @@ namespace FahasaStoreAPI.Entities
         }
 
         public int AddressId { get; set; }
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
         public string ReceiverName { get; set; } = null!;
         public string Province { get; set; } = null!;
         public string District { get; set; } = null!;
@@ -19,7 +19,7 @@ namespace FahasaStoreAPI.Entities
         public string Detail { get; set; } = null!;
         public bool DefaultAddress { get; set; }
 
-        public virtual User? User { get; set; }
+        public virtual AspNetUser? User { get; set; }
         public virtual ICollection<Order> Orders { get; set; }
     }
 }

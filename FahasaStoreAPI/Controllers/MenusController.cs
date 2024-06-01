@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
+using Microsoft.AspNetCore.Authorization;
+using FahasaStoreAPI.Helpers;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -22,6 +24,7 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/Menus
         [HttpGet]
+        //[Authorize(Roles = AppRole.Admin)]
         public async Task<ActionResult<IEnumerable<Menu>>> GetMenus()
         {
           if (_context.Menus == null)

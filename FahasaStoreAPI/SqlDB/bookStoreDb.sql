@@ -1,4 +1,4 @@
-﻿
+﻿    
 -- CREATE DATABASE FahasaStoreDB;
 -- USE FahasaStoreDB
 
@@ -69,35 +69,6 @@ CREATE TABLE Platforms (
 	public_id NVARCHAR(MAX),
     image_url NVARCHAR(MAX) NOT NULL,
     link NVARCHAR(MAX) NOT NULL
-);
-
--- Tạo bảng Roles
-CREATE TABLE Roles (
-    role_id INT PRIMARY KEY IDENTITY(1,1),
-    role_name NVARCHAR(255) NOT NULL UNIQUE
-);
-
--- Tạo bảng Users
-CREATE TABLE Users (
-    user_id INT PRIMARY KEY IDENTITY(1,1),
-    role_id INT FOREIGN KEY REFERENCES Roles(role_id),
-    full_name NVARCHAR(50) NOT NULL,
-    email NVARCHAR(100) UNIQUE,
-    phone NVARCHAR(20) UNIQUE,
-	public_id NVARCHAR(MAX),
-    image_url NVARCHAR(MAX) NOT NULL,
-	CreatedAt DATETIME NOT NULL,
-    UpdatedAt DATETIME NOT NULL,
-    active BIT NOT NULL
-);
-
--- Tạo bảng Accounts
-CREATE TABLE Accounts (
-    Account_id INT PRIMARY KEY IDENTITY(1,1),
-	username nvarchar(100) NOT NULL UNIQUE,
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
-    password NVARCHAR(100),
-	active BIT NOT NULL,
 );
 
 -- Tạo bảng Categories
@@ -212,7 +183,7 @@ CREATE TABLE FlashSaleBooks (
 CREATE TABLE Reviews (
 	review_id INT PRIMARY KEY IDENTITY(1,1),
     book_id INT FOREIGN KEY REFERENCES Books(book_id),
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
+    user_id NVARCHAR(450) FOREIGN KEY REFERENCES AspNetUsers(id),
     rating INT NOT NULL,
     comment NVARCHAR(MAX),
     review_date DATETIME NOT NULL,
@@ -223,7 +194,7 @@ CREATE TABLE Reviews (
 -- Tạo bảng Address
 CREATE TABLE Address (
     address_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
+    user_id NVARCHAR(450) FOREIGN KEY REFERENCES AspNetUsers(id),
 	receiver_name NVARCHAR(50) NOT NULL,
     province NVARCHAR(50) NOT NULL,
     district NVARCHAR(50) NOT NULL,
@@ -250,7 +221,7 @@ CREATE TABLE Status (
 -- Tạo bảng Orders
 CREATE TABLE Orders (
     order_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
+    user_id NVARCHAR(450) FOREIGN KEY REFERENCES AspNetUsers(id),
 	voucher_id INT FOREIGN KEY REFERENCES Vouchers(voucher_id),
 	address_id INT FOREIGN KEY REFERENCES Address(address_id),
 	payment_method_id INT FOREIGN KEY REFERENCES PaymentMethods(payment_method_id),
@@ -287,7 +258,7 @@ CREATE TABLE Payments (
 -- Tạo bảng Carts
 CREATE TABLE Carts (
     cart_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT UNIQUE FOREIGN KEY REFERENCES Users(user_id),
+    user_id NVARCHAR(450) UNIQUE FOREIGN KEY REFERENCES AspNetUsers(id),
     created_at DATETIME NOT NULL
 );
 
@@ -308,7 +279,7 @@ CREATE TABLE NotificationTypes (
 CREATE TABLE Notifications (
     notification_id INT PRIMARY KEY IDENTITY(1,1),
 	notification_type_id INT FOREIGN KEY REFERENCES NotificationTypes(notification_type_id),
-	user_id INT FOREIGN KEY REFERENCES Users(user_id),
+	user_id NVARCHAR(450) FOREIGN KEY REFERENCES AspNetUsers(id),
     title NVARCHAR(255) NOT NULL,
     content NVARCHAR(MAX) NOT NULL,
     created_at DATETIME NOT NULL,
@@ -318,7 +289,7 @@ CREATE TABLE Notifications (
 -- Tạo bảng Favourites
 CREATE TABLE Favourites (
 	favourite_id INT PRIMARY KEY IDENTITY(1,1),
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
+    user_id NVARCHAR(450) FOREIGN KEY REFERENCES AspNetUsers(id),
     book_id INT FOREIGN KEY REFERENCES Books(book_id),
     created_at DATETIME NOT NULL,
 	UNIQUE (user_id, book_id)

@@ -1,10 +1,15 @@
-using FahasaStoreAPI.Entities;
+﻿using FahasaStoreAPI.Entities;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using AutoMapper;
-using FahasaStoreAPI.Services;
-using Microsoft.EntityFrameworkCore.Update;
-using BookStoreAPI.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.OpenApi.Models;
+using FahasaStoreAPI.Repositories;
+using FahasaStoreAPI.Identity;
+using BookStoreAPI.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,7 +18,34 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(option =>
+{
+    option.SwaggerDoc("v1", new OpenApiInfo { Title = "Fahasa Store API", Version = "v1" });
+    option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Description = "Please enter a valid token",
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        BearerFormat = "JWT",
+        Scheme = "Bearer"
+    });
+    option.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type=ReferenceType.SecurityScheme,
+                    Id="Bearer"
+                }
+            },
+            new string[]{}
+        }
+    });
+});
+
 builder.Services.AddDbContext<FahasaStoreDBContext>(option => option.UseSqlServer
     (builder.Configuration.GetConnectionString("myStore")));
 
@@ -28,7 +60,55 @@ builder.Services.AddMvc(option => option.EnableEndpointRouting = false)
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddHttpClient();
+// Life cycle DI: AddSingleton(), AddTransient(), AddScoped()
 builder.Services.AddScoped<IImageUploader, ImageUploader>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+
+builder.Services.AddDbContext<StoreContext>(option => option.UseSqlServer
+    (builder.Configuration.GetConnectionString("myStore")));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<StoreContext>().AddDefaultTokenProviders();
+
+// Add Authentication
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.SaveToken = true;
+    options.RequireHttpsMetadata = false;
+    options.TokenValidationParameters = new TokenValidationParameters 
+    {
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero,
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidAudience = builder.Configuration["JWT:ValidAudience"],
+        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
+    };
+});
+
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    // Cấu hình Password
+    options.Password.RequireDigit = true;
+    options.Password.RequiredLength = 8;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = false;
+
+    // Cấu hình Lockout
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.AllowedForNewUsers = true;
+
+    // Cấu hình User
+    options.User.RequireUniqueEmail = true;
+});
 
 var app = builder.Build();
 
@@ -43,6 +123,7 @@ app.UseCors("MyCors");
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using FahasaStoreAPI.Entities;
-using FahasaStoreAPI.Models.ViewModel;
-using Microsoft.AspNetCore.Identity;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -15,134 +10,44 @@ namespace FahasaStoreAPI.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly FahasaStoreDBContext _context;
+        private readonly IAccountService _accountService;
 
-        public AccountsController(FahasaStoreDBContext context)
+        public AccountsController(IAccountService accountService)
         {
-            _context = context;
+            _accountService = accountService;
         }
 
-        //[HttpPost("Login")]
-        //public async Task<IActionResult> Login([FromBody] LoginViewModel model)
-        //{
-        //    if (!ModelState.IsValid)
-        //        return BadRequest(ModelState);
-
-        //    var user = await _userManager.FindByEmailAsync(model.Email);
-        //    if (user == null)
-        //        return Unauthorized(new { Message = "Invalid login attempt" });
-
-        //    var result = await _signInManager.PasswordSignInAsync(user.UserName, model.Password, model.RememberMe, false);
-
-        //    if (result.Succeeded)
-        //        return Ok(new { Message = "Login successful" });
-
-        //    return Unauthorized(new { Message = "Invalid login attempt" });
-        //}
-
-        // GET: api/Accounts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+        [HttpPost("SignUp")] // [FromForm]SignUpModel signUpModel
+        public async Task<IActionResult> SignUp(SignUpModel signUpModel)
         {
-          if (_context.Accounts == null)
-          {
-              return NotFound();
-          }
-            return await _context.Accounts.ToListAsync();
-        }
-
-        // GET: api/Accounts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Account>> GetAccount(int id)
-        {
-          if (_context.Accounts == null)
-          {
-              return NotFound();
-          }
-            var account = await _context.Accounts.FindAsync(id);
-
-            if (account == null)
+            var result = await _accountService.SignUpAsync(signUpModel);
+            if (result.Succeeded)
             {
-                return NotFound();
+                return Ok(result.Succeeded);
             }
 
-            return account;
+            return Unauthorized();
         }
 
-        // PUT: api/Accounts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAccount(int id, Account account)
+        [HttpPost("SignIn")]
+        public async Task<IActionResult> SignIn(SignInModel signInModel)
         {
-            if (id != account.AccountId)
+            var accessToken = await _accountService.SignInAsync(signInModel);
+
+            if (accessToken == null)
             {
-                return BadRequest();
+                return Unauthorized();
             }
 
-            _context.Entry(account).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AccountExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
+            return Ok(accessToken);
         }
 
-        // POST: api/Accounts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Account>> PostAccount(Account account)
+        [HttpPost("SignOut")]
+        [Authorize]
+        public async Task<IActionResult> SignOff()
         {
-          if (_context.Accounts == null)
-          {
-              return Problem("Entity set 'FahasaStoreDBContext.Accounts'  is null.");
-          }
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetAccount", new { id = account.AccountId }, account);
-        }
-
-        // DELETE: api/Accounts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAccount(int id)
-        {
-            if (_context.Accounts == null)
-            {
-                return NotFound();
-            }
-            var account = await _context.Accounts.FindAsync(id);
-            if (account == null)
-            {
-                return NotFound();
-            }
-
-            _context.Accounts.Remove(account);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool AccountExists(int id)
-        {
-            return (_context.Accounts?.Any(e => e.AccountId == id)).GetValueOrDefault();
-        }
-
-        private bool AccountExistsByUserName(string username)
-        {
-            return (_context.Accounts?.Any(e => e.Username == username)).GetValueOrDefault();
+            await _accountService.SignOutAsync();
+            return Ok(new { message = "SignOut successful" });
         }
     }
 }

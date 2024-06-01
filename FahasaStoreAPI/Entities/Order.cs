@@ -12,7 +12,7 @@ namespace FahasaStoreAPI.Entities
         }
 
         public int OrderId { get; set; }
-        public int? UserId { get; set; }
+        public string? UserId { get; set; }
         public int? VoucherId { get; set; }
         public int? AddressId { get; set; }
         public int? PaymentMethodId { get; set; }
@@ -21,7 +21,7 @@ namespace FahasaStoreAPI.Entities
 
         public virtual Address? Address { get; set; }
         public virtual PaymentMethod? PaymentMethod { get; set; }
-        public virtual User? User { get; set; }
+        public virtual AspNetUser? User { get; set; }
         public virtual Voucher? Voucher { get; set; }
         public virtual Payment? Payment { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }

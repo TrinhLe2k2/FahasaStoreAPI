@@ -28,7 +28,7 @@ namespace FahasaStoreAPI.Controllers
           {
               return NotFound();
           }
-            return await _context.Carts.ToListAsync();
+            return await _context.Carts.Include(e=>e.User).ToListAsync();
         }
 
         // GET: api/Carts/5

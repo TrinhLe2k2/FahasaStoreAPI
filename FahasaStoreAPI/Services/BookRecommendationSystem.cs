@@ -1,6 +1,6 @@
 ﻿using FahasaStoreAPI.Entities;
 
-namespace FahasaStoreAPI.Services
+namespace FahasaStoreAPI.Repositories
 {
     public class BookRecommendationSystem
     {
