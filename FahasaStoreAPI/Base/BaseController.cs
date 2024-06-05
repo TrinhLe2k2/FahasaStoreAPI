@@ -21,14 +21,12 @@ namespace FahasaStoreAPI.Controllers
     {
         protected readonly FahasaStoreDBContext _context;
         protected readonly IMapper _mapper;
-        protected readonly IImageUploader _imageUploader;
         private readonly List<Expression<Func<TEntity, object>>> _includes;
 
-        protected BaseController(FahasaStoreDBContext context, IMapper mapper, IImageUploader imageUploader, params Expression<Func<TEntity, object>>[] includes)
+        protected BaseController(FahasaStoreDBContext context, IMapper mapper, params Expression<Func<TEntity, object>>[] includes)
         {
             _context = context;
             _mapper = mapper;
-            _imageUploader = imageUploader;
             _includes = includes.ToList();
         }
 

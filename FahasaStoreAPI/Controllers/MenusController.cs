@@ -10,7 +10,7 @@ namespace FahasaStoreAPI.Controllers
     [ApiController]
     public class MenusController : BaseController<Menu, MenuModel, int>
     {
-        public MenusController(FahasaStoreDBContext context, IMapper mapper, IImageUploader imageUploader) : base(context, mapper, imageUploader)
+        public MenusController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
         }
 
