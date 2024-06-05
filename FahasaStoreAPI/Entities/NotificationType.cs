@@ -10,8 +10,9 @@ namespace FahasaStoreAPI.Entities
             Notifications = new HashSet<Notification>();
         }
 
-        public int NotificationTypeId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = null!;
+        public DateTime? CreatedAt { get; set; }
 
         public virtual ICollection<Notification> Notifications { get; set; }
     }

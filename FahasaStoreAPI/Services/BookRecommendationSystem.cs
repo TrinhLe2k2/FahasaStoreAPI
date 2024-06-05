@@ -1,6 +1,6 @@
 ﻿using FahasaStoreAPI.Entities;
 
-namespace FahasaStoreAPI.Repositories
+namespace FahasaStoreAPI.Services
 {
     public class BookRecommendationSystem
     {
@@ -82,7 +82,7 @@ namespace FahasaStoreAPI.Repositories
             }
 
             var result = new Dictionary<int, double[]>();
-            result[book.BookId] = featureVector;
+            result[book.Id] = featureVector;
             return result;
         }
 
@@ -114,8 +114,8 @@ namespace FahasaStoreAPI.Repositories
             foreach (var otherBook in _books)
             {
                 vectorB = FeatureVector(otherBook);
-                var computeCosine = ComputeCosineSimilarityMatrix(vectorA[book.BookId], vectorB[otherBook.BookId]);
-                similarBooksDictionary[otherBook.BookId] = computeCosine;
+                var computeCosine = ComputeCosineSimilarityMatrix(vectorA[book.Id], vectorB[otherBook.Id]);
+                similarBooksDictionary[otherBook.Id] = computeCosine;
             }
             var similarBooks = similarBooksDictionary
                 .OrderByDescending(e => e.Value)

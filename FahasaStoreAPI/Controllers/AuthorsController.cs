@@ -1,128 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
-using Microsoft.AspNetCore.Authorization;
-using FahasaStoreAPI.Helpers;
+using AutoMapper;
+using FahasaStoreAPI.Models;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AuthorsController : ControllerBase
+    public class AuthorsController : BaseController<Author, AuthorModel, int>
     {
-        private readonly FahasaStoreDBContext _context;
-
-        public AuthorsController(FahasaStoreDBContext context)
+        public AuthorsController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
-            _context = context;
         }
 
-        // GET: api/Authors
-        [HttpGet]
-        //[Authorize]
-        //[Authorize(Roles = AppRole.Customer)]
-        public async Task<ActionResult<IEnumerable<Author>>> GetAuthors()
+        protected override int GetEntityId(Author entity)
         {
-          if (_context.Authors == null)
-          {
-              return NotFound();
-          }
-            return await _context.Authors.Include(e=>e.Books).ToListAsync();
+            return entity.Id;
         }
 
-        // GET: api/Authors/5
-        [HttpGet("{id}")]
-        //[Authorize]
-        public async Task<ActionResult<Author>> GetAuthor(int id)
+        protected override IQueryable<Author> IncludeRelatedEntities(IQueryable<Author> query)
         {
-          if (_context.Authors == null)
-          {
-              return NotFound();
-          }
-            var author = await _context.Authors.Include(e => e.Books).FirstOrDefaultAsync(e=>e.AuthorId == id);
-
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            return author;
-        }
-
-        // PUT: api/Authors/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutAuthor(int id, Author author)
-        {
-            if (id != author.AuthorId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(author).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!AuthorExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Authors
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Author>> PostAuthor(Author author)
-        {
-          if (_context.Authors == null)
-          {
-              return Problem("Entity set 'FahasaStoreDBContext.Authors'  is null.");
-          }
-            _context.Authors.Add(author);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetAuthor", new { id = author.AuthorId }, author);
-        }
-
-        // DELETE: api/Authors/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteAuthor(int id)
-        {
-            if (_context.Authors == null)
-            {
-                return NotFound();
-            }
-            var author = await _context.Authors.FindAsync(id);
-            if (author == null)
-            {
-                return NotFound();
-            }
-
-            _context.Authors.Remove(author);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool AuthorExists(int id)
-        {
-            return (_context.Authors?.Any(e => e.AuthorId == id)).GetValueOrDefault();
+            return query.Include(e => e.Books);
         }
     }
 }

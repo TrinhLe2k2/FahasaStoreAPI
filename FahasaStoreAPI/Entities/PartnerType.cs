@@ -10,8 +10,9 @@ namespace FahasaStoreAPI.Entities
             Partners = new HashSet<Partner>();
         }
 
-        public int PartnerTypeId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = null!;
+        public DateTime? CreatedAt { get; set; }
 
         public virtual ICollection<Partner> Partners { get; set; }
     }

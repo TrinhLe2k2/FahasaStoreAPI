@@ -10,10 +10,11 @@ namespace FahasaStoreAPI.Entities
             Subcategories = new HashSet<Subcategory>();
         }
 
-        public int CategoryId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string? PublicId { get; set; }
-        public string ImageUrl { get; set; } = null!;
+        public string? ImageUrl { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
         public virtual ICollection<Subcategory> Subcategories { get; set; }
     }

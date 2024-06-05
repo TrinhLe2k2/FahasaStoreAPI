@@ -10,8 +10,9 @@ namespace FahasaStoreAPI.Entities
             Books = new HashSet<Book>();
         }
 
-        public int AuthorId { get; set; }
+        public int Id { get; set; }
         public string Name { get; set; } = null!;
+        public DateTime? CreatedAt { get; set; }
 
         public virtual ICollection<Book> Books { get; set; }
     }

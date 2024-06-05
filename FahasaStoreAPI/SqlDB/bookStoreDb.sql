@@ -167,7 +167,7 @@ CREATE TABLE FlashSales (
     flash_sale_id INT PRIMARY KEY IDENTITY(1,1),
     start_date DATETIME NOT NULL,
     end_date DATETIME NOT NULL,
-	CHECK (end_date >= start_date)
+	CHECK (end_date > start_date)
 );
 
 CREATE TABLE FlashSaleBooks (

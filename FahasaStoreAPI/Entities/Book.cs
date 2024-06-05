@@ -16,11 +16,11 @@ namespace FahasaStoreAPI.Entities
             Reviews = new HashSet<Review>();
         }
 
-        public int BookId { get; set; }
-        public int? SubcategoryId { get; set; }
-        public int? AuthorId { get; set; }
-        public int? CoverTypeId { get; set; }
-        public int? DimensionId { get; set; }
+        public int Id { get; set; }
+        public int SubcategoryId { get; set; }
+        public int AuthorId { get; set; }
+        public int CoverTypeId { get; set; }
+        public int DimensionId { get; set; }
         public string Name { get; set; } = null!;
         public string Description { get; set; } = null!;
         public decimal Price { get; set; }
@@ -28,11 +28,12 @@ namespace FahasaStoreAPI.Entities
         public int Quantity { get; set; }
         public double? Weight { get; set; }
         public int? PageCount { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
-        public virtual Author? Author { get; set; }
-        public virtual CoverType? CoverType { get; set; }
-        public virtual Dimension? Dimension { get; set; }
-        public virtual Subcategory? Subcategory { get; set; }
+        public virtual Author Author { get; set; } = null!;
+        public virtual CoverType CoverType { get; set; } = null!;
+        public virtual Dimension Dimension { get; set; } = null!;
+        public virtual Subcategory Subcategory { get; set; } = null!;
         public virtual ICollection<BookPartner> BookPartners { get; set; }
         public virtual ICollection<CartItem> CartItems { get; set; }
         public virtual ICollection<Favourite> Favourites { get; set; }

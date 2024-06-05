@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FahasaStoreAPI.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20240529024940_InitialIdentity")]
-    partial class InitialIdentity
+    [Migration("20240604140925_AddDB")]
+    partial class AddDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

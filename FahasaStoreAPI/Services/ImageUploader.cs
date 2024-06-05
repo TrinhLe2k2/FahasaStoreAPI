@@ -2,11 +2,12 @@
 using CloudinaryDotNet;
 using Microsoft.AspNetCore.Mvc;
 
-namespace BookStoreAPI.Repositories
+namespace FahasaStoreAPI.Services
 {
     public interface IImageUploader
     {
-        public Task<UploadResult> UploadImageAsync(IFormFile file);
+        public Task<ImageUploadResultModel> UploadImageAsync(IFormFile file, string? folderName);
+        public Task<bool> RemoveImageAsync(string? publicId);
     }
     public class ImageUploader : IImageUploader
     {
@@ -20,18 +21,37 @@ namespace BookStoreAPI.Repositories
             _cloudinary = new Cloudinary(account);
         }
 
-        public async Task<UploadResult> UploadImageAsync(IFormFile file)
+        public async Task<bool> RemoveImageAsync(string? publicId)
         {
-            using (var stream = file?.OpenReadStream())
+            if (string.IsNullOrWhiteSpace(publicId))
             {
+                return false;
+            }
+            var deletionParams = new DeletionParams(publicId);
+            var deletionResult = await _cloudinary.DestroyAsync(deletionParams);
+            return deletionResult.Result == "ok";
+        }
+
+        public async Task<ImageUploadResultModel> UploadImageAsync(IFormFile file, string? folderName)
+        {
+            if (file == null || file.Length == 0)
+            {
+                var imageUploadResult = new ImageUploadResultModel("https://res-console.cloudinary.com/drk83zqgs/media_explorer_thumbnails/6d6a5b0e8c5f1954f29b609202821745/detailed", null);
+                return imageUploadResult;
+            }
+
+            using (var stream = file.OpenReadStream())
+            {
+
                 var uploadParams = new ImageUploadParams
                 {
-                    File = new FileDescription(file?.FileName, stream),
-                    // You can add more parameters here, like folder, tags, etc.
+                    File = new FileDescription(file.FileName, stream),
+                    Folder = !string.IsNullOrEmpty(folderName) ? folderName : null
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
-                return uploadResult;
+
+                return new ImageUploadResultModel(uploadResult.Url.ToString(), uploadResult.PublicId);
             }
         }
     }

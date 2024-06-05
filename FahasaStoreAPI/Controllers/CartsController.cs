@@ -1,123 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using FahasaStoreAPI.Entities;
+using AutoMapper;
+using FahasaStoreAPI.Models;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CartsController : ControllerBase
+    public class CartsController : BaseController<Cart, CartModel, int>
     {
-        private readonly FahasaStoreDBContext _context;
-
-        public CartsController(FahasaStoreDBContext context)
+        public CartsController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
-            _context = context;
         }
 
-        // GET: api/Carts
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cart>>> GetCarts()
+        protected override int GetEntityId(Cart entity)
         {
-          if (_context.Carts == null)
-          {
-              return NotFound();
-          }
-            return await _context.Carts.Include(e=>e.User).ToListAsync();
+            return entity.Id;
         }
 
-        // GET: api/Carts/5
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Cart>> GetCart(int id)
+        protected override IQueryable<Cart> IncludeRelatedEntities(IQueryable<Cart> query)
         {
-          if (_context.Carts == null)
-          {
-              return NotFound();
-          }
-            var cart = await _context.Carts.FindAsync(id);
-
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            return cart;
-        }
-
-        // PUT: api/Carts/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutCart(int id, Cart cart)
-        {
-            if (id != cart.CartId)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(cart).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!CartExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return NoContent();
-        }
-
-        // POST: api/Carts
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
-        [HttpPost]
-        public async Task<ActionResult<Cart>> PostCart(Cart cart)
-        {
-          if (_context.Carts == null)
-          {
-              return Problem("Entity set 'FahasaStoreDBContext.Carts'  is null.");
-          }
-            _context.Carts.Add(cart);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetCart", new { id = cart.CartId }, cart);
-        }
-
-        // DELETE: api/Carts/5
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteCart(int id)
-        {
-            if (_context.Carts == null)
-            {
-                return NotFound();
-            }
-            var cart = await _context.Carts.FindAsync(id);
-            if (cart == null)
-            {
-                return NotFound();
-            }
-
-            _context.Carts.Remove(cart);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool CartExists(int id)
-        {
-            return (_context.Carts?.Any(e => e.CartId == id)).GetValueOrDefault();
+            return query;
         }
     }
 }

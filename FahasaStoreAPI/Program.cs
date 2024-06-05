@@ -1,5 +1,4 @@
-﻿using FahasaStoreAPI.Entities;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
@@ -7,9 +6,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using FahasaStoreAPI.Repositories;
 using FahasaStoreAPI.Identity;
-using BookStoreAPI.Repositories;
+using FahasaStoreAPI.Services;
+using FahasaStoreAPI.Entities;
+using FahasaStoreAPI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,29 +46,33 @@ builder.Services.AddSwaggerGen(option =>
     });
 });
 
-builder.Services.AddDbContext<FahasaStoreDBContext>(option => option.UseSqlServer
+builder.Services.AddDbContext<StoreContext>(option => option.UseSqlServer
     (builder.Configuration.GetConnectionString("myStore")));
+
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<StoreContext>().AddDefaultTokenProviders();
+
+builder.Services.AddDbContext<FahasaStoreDBContext>(option =>
+{
+    option.UseSqlServer(builder.Configuration.GetConnectionString("myStore"));
+    //option.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+});
+
+builder.Services.AddScoped<IImageUploader, ImageUploader>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 builder.Services.AddCors(p => p.AddPolicy("MyCors", build =>
 {
     build.WithOrigins("*").AllowAnyMethod().AllowAnyHeader();
 }));
 
+// Life cycle DI: AddSingleton(), AddTransient(), AddScoped()
 builder.Services.AddMvc(option => option.EnableEndpointRouting = false)
                     .AddNewtonsoftJson(otp => otp.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
 
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddHttpClient();
-// Life cycle DI: AddSingleton(), AddTransient(), AddScoped()
-builder.Services.AddScoped<IImageUploader, ImageUploader>();
-builder.Services.AddScoped<IAccountService, AccountService>();
-
-builder.Services.AddDbContext<StoreContext>(option => option.UseSqlServer
-    (builder.Configuration.GetConnectionString("myStore")));
-
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    .AddEntityFrameworkStores<StoreContext>().AddDefaultTokenProviders();
 
 // Add Authentication
 builder.Services.AddAuthentication(options =>

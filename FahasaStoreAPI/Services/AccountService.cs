@@ -2,8 +2,6 @@
 using FahasaStoreAPI.Helpers;
 using FahasaStoreAPI.Identity;
 using FahasaStoreAPI.Models;
-using FahasaStoreAPI.Models.DTOModel;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,7 +9,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 
-namespace FahasaStoreAPI.Repositories
+namespace FahasaStoreAPI.Services
 {
     public interface IAccountService
     {

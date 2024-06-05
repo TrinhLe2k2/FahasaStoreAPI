@@ -46,6 +46,43 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\AccountsController.cs" />
+    <Compile Remove="Controllers\AddressController.cs" />
+    <Compile Remove="Controllers\AuthorsController.cs" />
+    <Compile Remove="Controllers\BannersController.cs" />
+    <Compile Remove="Controllers\BookPartnersController.cs" />
+    <Compile Remove="Controllers\BooksController.cs" />
+    <Compile Remove="Controllers\CartItemsController.cs" />
+    <Compile Remove="Controllers\CartsController.cs" />
+    <Compile Remove="Controllers\CategoriesController.cs" />
+    <Compile Remove="Controllers\CoverTypesController.cs" />
+    <Compile Remove="Controllers\DimensionsController.cs" />
+    <Compile Remove="Controllers\FavouritesController.cs" />
+    <Compile Remove="Controllers\FlashSaleBooksController.cs" />
+    <Compile Remove="Controllers\FlashSalesController.cs" />
+    <Compile Remove="Controllers\NotificationsController.cs" />
+    <Compile Remove="Controllers\NotificationTypesController.cs" />
+    <Compile Remove="Controllers\OrderItemsController.cs" />
+    <Compile Remove="Controllers\OrdersController.cs" />
+    <Compile Remove="Controllers\OrderStatusController.cs" />
+    <Compile Remove="Controllers\PartnersController.cs" />
+    <Compile Remove="Controllers\PartnerTypesController.cs" />
+    <Compile Remove="Controllers\PaymentMethodsController.cs" />
+    <Compile Remove="Controllers\PaymentsController.cs" />
+    <Compile Remove="Controllers\PlatformsController.cs" />
+    <Compile Remove="Controllers\PosterImagesController.cs" />
+    <Compile Remove="Controllers\ReviewsController.cs" />
+    <Compile Remove="Controllers\RolesController.cs" />
+    <Compile Remove="Controllers\StatusController.cs" />
+    <Compile Remove="Controllers\SubcategoriesController.cs" />
+    <Compile Remove="Controllers\TopicContentsController.cs" />
+    <Compile Remove="Controllers\TopicsController.cs" />
+    <Compile Remove="Controllers\UsersController.cs" />
+    <Compile Remove="Controllers\VouchersController.cs" />
+    <Compile Remove="Controllers\WebsitesController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="6.1.1" />
     <PackageReference Include="CloudinaryDotNet" Version="1.26.2" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.29" />

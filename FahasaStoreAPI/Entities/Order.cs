@@ -11,18 +11,18 @@ namespace FahasaStoreAPI.Entities
             OrderStatuses = new HashSet<OrderStatus>();
         }
 
-        public int OrderId { get; set; }
-        public string? UserId { get; set; }
-        public int? VoucherId { get; set; }
-        public int? AddressId { get; set; }
-        public int? PaymentMethodId { get; set; }
-        public DateTime OrderDate { get; set; }
+        public int Id { get; set; }
+        public string UserId { get; set; } = null!;
+        public int VoucherId { get; set; }
+        public int AddressId { get; set; }
+        public int PaymentMethodId { get; set; }
         public string? Note { get; set; }
+        public DateTime? CreatedAt { get; set; }
 
-        public virtual Address? Address { get; set; }
-        public virtual PaymentMethod? PaymentMethod { get; set; }
-        public virtual AspNetUser? User { get; set; }
-        public virtual Voucher? Voucher { get; set; }
+        public virtual Address Address { get; set; } = null!;
+        public virtual PaymentMethod PaymentMethod { get; set; } = null!;
+        public virtual AspNetUser User { get; set; } = null!;
+        public virtual Voucher Voucher { get; set; } = null!;
         public virtual Payment? Payment { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual ICollection<OrderStatus> OrderStatuses { get; set; }
