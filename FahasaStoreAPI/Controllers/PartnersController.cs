@@ -2,6 +2,7 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -20,7 +21,7 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<Partner> IncludeRelatedEntities(IQueryable<Partner> query)
         {
-            return query;
+            return query.Include(e => e.PartnerType).Include(e => e.BookPartners);
         }
     }
 }

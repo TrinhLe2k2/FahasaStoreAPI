@@ -23,6 +23,7 @@ namespace FahasaStoreAPI.Controllers
             var result = await _accountService.SignUpAsync(signUpModel);
             if (result.Succeeded)
             {
+
                 return Ok(result.Succeeded);
             }
 

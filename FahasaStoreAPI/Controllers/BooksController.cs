@@ -39,7 +39,7 @@ namespace FahasaStoreAPI.Controllers
         }
 
         [HttpGet]
-        [Authorize] // Cần xác thực cho phương thức này
+        //[Authorize] // Cần xác thực cho phương thức này
         public override async Task<ActionResult<IEnumerable<Book>>> GetEntities()
         {
             return await base.GetEntities();
@@ -84,42 +84,42 @@ namespace FahasaStoreAPI.Controllers
 
         // Xu hướng mua sắm trong ngày
         [HttpGet("trending/daily")]
-        public async Task<ActionResult<IEnumerable<Book>>> GetDailyTrendingBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetDailyTrendingBooks(int limited = 10)
         {
             var startDate = DateTime.Today;
             var endDate = startDate.AddDays(1);
 
-            return await GetTrendingBooks(startDate, endDate);
+            return await GetTrendingBooks(startDate, endDate, limited);
         }
 
         // Xu hướng mua sắm trong tháng
         [HttpGet("trending/monthly")]
-        public async Task<ActionResult<IEnumerable<Book>>> GetMonthlyTrendingBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetMonthlyTrendingBooks(int limited = 10)
         {
             var startDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
             var endDate = startDate.AddMonths(1);
 
-            return await GetTrendingBooks(startDate, endDate);
+            return await GetTrendingBooks(startDate, endDate, limited);
         }
 
         // Xu hướng mua sắm trong năm
         [HttpGet("trending/yearly")]
-        public async Task<ActionResult<IEnumerable<Book>>> GetYearlyTrendingBooks()
+        public async Task<ActionResult<IEnumerable<Book>>> GetYearlyTrendingBooks(int limited = 10)
         {
             var startDate = new DateTime(DateTime.Today.Year, 1, 1);
             var endDate = startDate.AddYears(1);
 
-            return await GetTrendingBooks(startDate, endDate);
+            return await GetTrendingBooks(startDate, endDate, limited);
         }
 
-        private async Task<ActionResult<IEnumerable<Book>>> GetTrendingBooks(DateTime startDate, DateTime endDate)
+        private async Task<ActionResult<IEnumerable<Book>>> GetTrendingBooks(DateTime startDate, DateTime endDate, int limited = 10)
         {
             var trendingBooks = await _context.OrderItems.Include(oi => oi.Order)
-                                              .Where(oi => oi.Order.CreatedAt >= startDate && oi.Order.CreatedAt < endDate)
+                                              .Where(oi => oi.Order.CreatedAt >= startDate && oi.Order.CreatedAt <= endDate)
                                               .GroupBy(oi => oi.BookId)
                                               .OrderByDescending(g => g.Count())
                                               .Select(g => g.Key)
-                                              .Take(10)
+                                              .Take(limited)
                                               .ToListAsync();
 
             var books = await _context.Books

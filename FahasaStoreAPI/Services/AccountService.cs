@@ -23,14 +23,17 @@ namespace FahasaStoreAPI.Services
         private readonly SignInManager<ApplicationUser> signInManager;
         private readonly IConfiguration configuration;
         private readonly RoleManager<IdentityRole> roleManager;
+        private readonly FahasaStoreDBContext _context;
 
-        public AccountService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager)
+        public AccountService(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, IConfiguration configuration, RoleManager<IdentityRole> roleManager, FahasaStoreDBContext context)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
             this.configuration = configuration;
             this.roleManager = roleManager;
+            _context = context;
         }
+
         public async Task<string> SignInAsync(SignInModel model)
         {
             try
@@ -69,7 +72,7 @@ namespace FahasaStoreAPI.Services
                 var token = new JwtSecurityToken(
                     issuer: configuration["JWT:ValidIssuer"],
                     audience: configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddMinutes(60),
+                    expires: DateTime.Now.AddMonths(6),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                 );
@@ -110,6 +113,12 @@ namespace FahasaStoreAPI.Services
                 }
 
                 await userManager.AddToRoleAsync(user, AppRole.Customer);
+                // Tạo giỏ hàng cho người dùng này
+
+                var cart = new Cart();
+                cart.UserId = user.Id;
+                _context.Carts.Add(cart);
+                await _context.SaveChangesAsync();
             }
             return result;
         }

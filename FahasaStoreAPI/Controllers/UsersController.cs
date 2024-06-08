@@ -24,7 +24,15 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<AspNetUser> IncludeRelatedEntities(IQueryable<AspNetUser> query)
         {
-            return query.Include(e => e.Roles);
+            return query
+                .Include(e => e.Cart)
+                    .ThenInclude(e => e.CartItems)
+                .Include(e => e.Addresses)
+                .Include(e => e.Favourites)
+                .Include(e => e.Notifications)
+                .Include(e => e.Orders)
+                .Include(e => e.Reviews)
+                .Include(e => e.Roles);
         }
     }
 }

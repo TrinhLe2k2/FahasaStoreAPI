@@ -10,7 +10,7 @@ namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SubcategoriesController : BaseController<Subcategory, Subcategory, int>
+    public class SubcategoriesController : BaseController<Subcategory, SubcategoryModel, int>
     {
         public SubcategoriesController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {

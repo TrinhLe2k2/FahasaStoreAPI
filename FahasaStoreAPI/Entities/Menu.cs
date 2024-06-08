@@ -1,4 +1,7 @@
-﻿namespace FahasaStoreAPI.Entities
+﻿using System;
+using System.Collections.Generic;
+
+namespace FahasaStoreAPI.Entities
 {
     public partial class Menu
     {
