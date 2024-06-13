@@ -2,12 +2,13 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class WebsitesController : BaseController<Website, WebsiteModel, int>
+    public class WebsitesController : BaseController<Website, WebsiteModel, WebsiteDTO, int>
     {
         public WebsitesController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {

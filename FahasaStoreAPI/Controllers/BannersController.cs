@@ -1,17 +1,14 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class BannersController : BaseController<Banner, BannerModel, int>
+    public class BannersController : BaseController<Banner, BannerModel, BannerDTO, int>
     {
         public BannersController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {

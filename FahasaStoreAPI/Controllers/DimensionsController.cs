@@ -2,12 +2,14 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class DimensionsController : BaseController<Dimension, DimensionModel, int>
+    public class DimensionsController : BaseController<Dimension, DimensionModel, DimensionDTO, int>
     {
         public DimensionsController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
@@ -20,7 +22,7 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<Dimension> IncludeRelatedEntities(IQueryable<Dimension> query)
         {
-            return query;
+            return query.Include(e => e.Books);
         }
     }
 }

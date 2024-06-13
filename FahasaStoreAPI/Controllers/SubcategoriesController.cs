@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using FahasaStoreAPI.Entities;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +11,7 @@ namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SubcategoriesController : BaseController<Subcategory, SubcategoryModel, int>
+    public class SubcategoriesController : BaseController<Subcategory, SubcategoryModel, SubcategoryDTO, int>
     {
         public SubcategoriesController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {

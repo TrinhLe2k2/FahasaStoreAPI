@@ -2,12 +2,14 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class RolesController : BaseController<AspNetRole, AspNetRoleModel, string>
+    public class RolesController : BaseController<AspNetRole, AspNetRoleModel, AspNetRoleDTO, string>
     {
         public RolesController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
@@ -20,7 +22,7 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<AspNetRole> IncludeRelatedEntities(IQueryable<AspNetRole> query)
         {
-            return query;
+            return query.Include(e => e.Users);
         }
     }
 }

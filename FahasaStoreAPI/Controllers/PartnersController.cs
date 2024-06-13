@@ -3,12 +3,13 @@ using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
 using Microsoft.EntityFrameworkCore;
+using FahasaStoreAPI.Models.DTO;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PartnersController : BaseController<Partner, PartnerModel, int>
+    public class PartnersController : BaseController<Partner, PartnerModel, PartnerDTO, int>
     {
         public PartnersController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {

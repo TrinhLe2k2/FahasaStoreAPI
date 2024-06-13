@@ -2,12 +2,14 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PosterImagesController : BaseController<PosterImage, PosterImageModel, int>
+    public class PosterImagesController : BaseController<PosterImage, PosterImageModel, PosterImageDTO, int>
     {
         public PosterImagesController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
@@ -20,7 +22,7 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<PosterImage> IncludeRelatedEntities(IQueryable<PosterImage> query)
         {
-            return query;
+            return query.Include(e => e.Book);
         }
     }
 }

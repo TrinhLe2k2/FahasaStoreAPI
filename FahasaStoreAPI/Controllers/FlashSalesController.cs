@@ -2,12 +2,14 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FlashSalesController : BaseController<FlashSale, FlashSaleModel, int>
+    public class FlashSalesController : BaseController<FlashSale, FlashSaleModel, FlashSaleDTO, int>
     {
         public FlashSalesController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
@@ -20,7 +22,7 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<FlashSale> IncludeRelatedEntities(IQueryable<FlashSale> query)
         {
-            return query;
+            return query.Include(e => e.FlashSaleBooks);
         }
     }
 }

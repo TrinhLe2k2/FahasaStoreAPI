@@ -2,12 +2,14 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class FavouritesController : BaseController<Favourite, FavouriteModel, int>
+    public class FavouritesController : BaseController<Favourite, FavouriteModel, FavouriteDTO, int>
     {
         public FavouritesController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
@@ -20,7 +22,7 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<Favourite> IncludeRelatedEntities(IQueryable<Favourite> query)
         {
-            return query;
+            return query.Include(e => e.Book).Include(e => e.User);
         }
     }
 }

@@ -17,8 +17,8 @@ namespace FahasaStoreAPI.Entities
         public int DiscountPercent { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
-        public decimal MinOrderAmount { get; set; }
-        public decimal MaxDiscountAmount { get; set; }
+        public int MinOrderAmount { get; set; }
+        public int MaxDiscountAmount { get; set; }
         public int UsageLimit { get; set; }
         public DateTime? CreatedAt { get; set; }
 

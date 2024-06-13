@@ -2,12 +2,14 @@
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PaymentsController : BaseController<Payment, PaymentModel, int>
+    public class PaymentsController : BaseController<Payment, PaymentModel, PaymentDTO, int>
     {
         public PaymentsController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
@@ -20,7 +22,7 @@ namespace FahasaStoreAPI.Controllers
 
         protected override IQueryable<Payment> IncludeRelatedEntities(IQueryable<Payment> query)
         {
-            return query;
+            return query.Include(e => e.Order);
         }
     }
 }

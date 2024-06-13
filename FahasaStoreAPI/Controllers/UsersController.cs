@@ -6,12 +6,13 @@ using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
 using AutoMapper;
 using FahasaStoreAPI.Models;
+using FahasaStoreAPI.Models.DTO;
 
 namespace FahasaStoreAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UsersController : BaseController<AspNetUser, AspNetUserModel, string>
+    public class UsersController : BaseController<AspNetUser, AspNetUserModel, AspNetUserDTO, string>
     {
         public UsersController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
         {
@@ -26,7 +27,6 @@ namespace FahasaStoreAPI.Controllers
         {
             return query
                 .Include(e => e.Cart)
-                    .ThenInclude(e => e.CartItems)
                 .Include(e => e.Addresses)
                 .Include(e => e.Favourites)
                 .Include(e => e.Notifications)

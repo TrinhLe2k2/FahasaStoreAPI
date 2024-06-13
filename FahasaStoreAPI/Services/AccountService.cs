@@ -72,7 +72,7 @@ namespace FahasaStoreAPI.Services
                 var token = new JwtSecurityToken(
                     issuer: configuration["JWT:ValidIssuer"],
                     audience: configuration["JWT:ValidAudience"],
-                    expires: DateTime.Now.AddMonths(6),
+                    expires: DateTime.Now.AddHours(2),
                     claims: authClaims,
                     signingCredentials: new SigningCredentials(authenKey, SecurityAlgorithms.HmacSha512Signature)
                 );

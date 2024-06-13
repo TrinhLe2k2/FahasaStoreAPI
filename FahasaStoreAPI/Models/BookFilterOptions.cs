@@ -2,14 +2,16 @@
 {
     public class BookFilterOptions
     {
+        public string SortBy { get; set; } = string.Empty;
+        public string Search { get; set; } = string.Empty;
         public int? CategoryId { get; set; }
         public int? SubcategoryId { get; set; }
         public int? AuthorId { get; set; }
-        public decimal? MinPrice { get; set; }
-        public decimal? MaxPrice { get; set; }
+        public int? MinPrice { get; set; }
+        public int? MaxPrice { get; set; }
         public int? PartnerId { get; set; }
-        public string CoverType { get; set; } = string.Empty;
+        public int? PartnerTypeId { get; set; }
+        public int? CoverTypeId { get; set; }
         public bool FlashSale { get; set; }
-        public string SortBy { get; set; } = string.Empty;
     }
 }

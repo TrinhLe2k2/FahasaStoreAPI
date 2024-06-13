@@ -1,23 +1,20 @@
 ﻿using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using FahasaStoreAPI.Entities;
 using X.PagedList;
-using Microsoft.AspNetCore.Authorization;
-using FahasaStoreAPI.Services;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Reflection;
+using FahasaStoreAPI.Models.Response;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Drawing.Printing;
 
 namespace FahasaStoreAPI.Controllers
 {
-    public abstract class BaseController<TEntity, TModel, TKey> : ControllerBase
+    public abstract class BaseController<TEntity, TModel, DTO, TKey> : ControllerBase
         where TEntity : class
         where TModel : class
+        where DTO : class
         where TKey : IEquatable<TKey>
     {
         protected readonly FahasaStoreDBContext _context;
@@ -33,7 +30,7 @@ namespace FahasaStoreAPI.Controllers
 
         // GET: api/[controller]
         [HttpGet]
-        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetEntities()
+        public virtual async Task<ActionResult<IEnumerable<DTO>>> GetEntities()
         {
             if (_context.Set<TEntity>() == null)
             {
@@ -44,11 +41,11 @@ namespace FahasaStoreAPI.Controllers
                                 .OrderByDescending(e => EF.Property<object>(e, "CreatedAt"))
                                 .ToListAsync();
 
-            return Ok(entities);
+            return Ok(_mapper.Map<IEnumerable<DTO>>(entities));
         }
         // GET: api/[controller]/Pagination
         [HttpGet("Pagination")]
-        public virtual async Task<ActionResult<IPagedList<TEntity>>> GetPagination(int page = 1, int size = 10)
+        public virtual async Task<ActionResult<PaginatedResponse<DTO>>> GetPagination(int page = 1, int size = 10)
         {
             if (_context.Set<TEntity>() == null)
             {
@@ -63,11 +60,30 @@ namespace FahasaStoreAPI.Controllers
 
             var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
 
-            return Ok(new StaticPagedList<TEntity>(pagedList, pagedList.GetMetaData()));
+            // Map entities to DTOs
+            var dtoList = pagedList.Select(entity => _mapper.Map<DTO>(entity)).ToList();
+
+            // Prepare paginated response
+            var response = new PaginatedResponse<DTO>
+            {
+                Items = dtoList,
+                PageNumber = pagedList.PageNumber,
+                PageSize = pagedList.PageSize,
+                TotalItemCount = pagedList.TotalItemCount,
+                PageCount = pagedList.PageCount,
+                HasNextPage = pagedList.HasNextPage,
+                HasPreviousPage = pagedList.HasPreviousPage,
+                IsFirstPage = pagedList.IsFirstPage,
+                IsLastPage = pagedList.IsLastPage,
+                StartPage = CalculateStartPage(pagedList.PageNumber, pagedList.PageCount, maxPages: 5),
+                EndPage = CalculateEndPage(pagedList.PageNumber, pagedList.PageCount, maxPages: 5)
+            };
+
+            return Ok(response);
         }
         // GET: api/[controller]/{id}
         [HttpGet("{id}")]
-        public virtual async Task<ActionResult<TEntity>> GetEntity(TKey id)
+        public virtual async Task<ActionResult<DTO>> GetEntity(TKey id)
         {
             if (_context.Set<TEntity>() == null)
             {
@@ -84,7 +100,7 @@ namespace FahasaStoreAPI.Controllers
                 .AsEnumerable()
                 .FirstOrDefault(e => GetEntityId(e).Equals(id));
 
-            return Ok(entityWithIncludes);
+            return Ok(_mapper.Map<DTO>(entityWithIncludes));
         }
         // PUT: api/[controller]/{id}
         [HttpPut("{id}")]
@@ -156,49 +172,8 @@ namespace FahasaStoreAPI.Controllers
 
             return NoContent();
         }
-        // Phương thức GetListBy
-        [HttpGet("GetListBy/{propertyName}/{value}")]
-        public virtual async Task<ActionResult<IEnumerable<TEntity>>> GetListBy(string propertyName, string value, int limited = 10)
-        {
-            if (_context.Set<TEntity>() == null)
-            {
-                return Problem($"Entity set '{typeof(TEntity).Name}' is null.");
-            }
 
-            // Kiểm tra nếu propertyName hoặc value là rỗng
-            if (value == "0")
-            {
-                var getAll = await IncludeRelatedEntities(_context.Set<TEntity>())
-                                        .OrderByDescending(e => EF.Property<object>(e, "CreatedAt"))
-                                        .Take(limited)
-                                        .ToListAsync(); // Truy vấn toàn bộ TEntity
-                return Ok(getAll);
-            }
-
-            // Kiểm tra xem propertyName có tồn tại trong TEntity không
-            var entityType = typeof(TEntity);
-            var propertyInfo = entityType.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            if (propertyInfo == null)
-            {
-                return BadRequest($"Property '{propertyName}' does not exist in '{entityType.Name}'.");
-            }
-
-            // Tiếp tục xử lý nếu propertyName tồn tại
-            var parameter = Expression.Parameter(typeof(TEntity), "e");
-            var property = Expression.PropertyOrField(parameter, propertyName);
-            var constant = Expression.Constant(Convert.ChangeType(value, property.Type));
-            var equal = Expression.Equal(property, constant);
-            var lambda = Expression.Lambda<Func<TEntity, bool>>(equal, parameter);
-
-            var entities = await IncludeRelatedEntities(_context.Set<TEntity>())
-                                .Where(lambda)
-                                .OrderByDescending(e => EF.Property<object>(e, "CreatedAt"))
-                                .ToListAsync();
-
-            return Ok(entities);
-        }
-
-        private bool EntityExists(TKey id)
+        protected bool EntityExists(TKey id)
         {
             return (_context.Set<TEntity>()?.Find(id) != null);
         }
@@ -211,5 +186,188 @@ namespace FahasaStoreAPI.Controllers
             }
             return query;
         }
+        // GET: api/[controller]/FilterPagination
+        [HttpGet("FilterPagination")]
+        public virtual async Task<ActionResult<PaginatedResponse<DTO>>> GetFilteredPagination(
+            [FromQuery] Dictionary<string, string>? filters,
+            string? sortField,
+            string? sortDirection,
+            int page = 1,
+            int size = 10)
+        {
+            sortField ??= "CreatedAt";
+            sortDirection ??= "desc";
+
+            if (_context.Set<TEntity>() == null)
+            {
+                return Problem($"Entity set '{typeof(TEntity).Name}' is null.");
+            }
+
+            int pageNumber = page;
+            int pageSize = size;
+
+            // Khởi tạo query
+            var query = IncludeRelatedEntities(_context.Set<TEntity>());
+
+            // Áp dụng các bộ lọc từ filters
+            if (filters != null && filters.Count > 0)
+            {
+                foreach (var filter in filters)
+                {
+                    var property = typeof(TEntity).GetProperty(filter.Key, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (property != null)
+                    {
+                        var value = Convert.ChangeType(filter.Value, property.PropertyType);
+                        query = query.Where(e => EF.Property<object>(e, property.Name).Equals(value));
+                    }
+                }
+            }
+
+            // Sắp xếp theo sortField và sortDirection
+            query = ApplySorting(query, sortField, sortDirection);
+
+            // Phân trang
+            var pagedList = await query.ToPagedListAsync(pageNumber, pageSize);
+
+            // Map entities to DTOs
+            var dtoList = pagedList.Select(entity => _mapper.Map<DTO>(entity)).ToList();
+
+            // Chuẩn bị phản hồi phân trang
+            var response = new PaginatedResponse<DTO>
+            {
+                Items = dtoList,
+                PageNumber = pagedList.PageNumber,
+                PageSize = pagedList.PageSize,
+                TotalItemCount = pagedList.TotalItemCount,
+                PageCount = pagedList.PageCount,
+                HasNextPage = pagedList.HasNextPage,
+                HasPreviousPage = pagedList.HasPreviousPage,
+                IsFirstPage = pagedList.IsFirstPage,
+                IsLastPage = pagedList.IsLastPage,
+                StartPage = CalculateStartPage(pagedList.PageNumber, pagedList.PageCount, maxPages: 5),
+                EndPage = CalculateEndPage(pagedList.PageNumber, pagedList.PageCount, maxPages: 5)
+            };
+
+            return Ok(response);
+        }
+        protected IQueryable<TEntity> ApplySorting(IQueryable<TEntity> query, string? sortField, string? sortDirection)
+        {
+            sortField ??= "CreatedAt";
+            sortDirection ??= "desc";
+
+            var property = typeof(TEntity).GetProperty(sortField, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (property == null)
+            {
+                // Nếu sortField không tồn tại, mặc định sắp xếp theo CreatedAt
+                property = typeof(TEntity).GetProperty("CreatedAt");
+            }
+            if (property == null)
+            {
+                return query;
+            }
+            var parameter = Expression.Parameter(typeof(TEntity), "e");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            var orderByExp = Expression.Lambda(propertyAccess, parameter);
+
+            string methodName = sortDirection.ToLower() == "desc" ? "OrderByDescending" : "OrderBy";
+            var resultExp = Expression.Call(typeof(Queryable), methodName, new Type[] { typeof(TEntity), property.PropertyType }, query.Expression, Expression.Quote(orderByExp));
+
+            return query.Provider.CreateQuery<TEntity>(resultExp);
+        }
+        protected int CalculateStartPage(int currentPage, int totalPages, int maxPages)
+        {
+            int startPage = Math.Max(1, currentPage - maxPages / 2);
+            if (startPage + maxPages - 1 > totalPages)
+            {
+                startPage = Math.Max(1, totalPages - maxPages + 1);
+            }
+            return startPage;
+        }
+        protected int CalculateEndPage(int currentPage, int totalPages, int maxPages)
+        {
+            int endPage = Math.Min(totalPages, currentPage + maxPages / 2);
+            if (endPage < maxPages)
+            {
+                endPage = Math.Min(totalPages, maxPages);
+            }
+            return endPage;
+        }
+
+        [HttpGet("GetListBy/{propertyName}/{value}")]
+        public virtual async Task<ActionResult<PaginatedResponse<DTO>>> GetListBy(string propertyName, string value, int page = 1, int size = 10)
+        {
+            try
+            {
+                if (_context.Set<TEntity>() == null)
+                {
+                    return Problem($"Entity set '{typeof(TEntity).Name}' is null.");
+                }
+
+                if (string.IsNullOrEmpty(propertyName) || string.IsNullOrEmpty(value))
+                {
+                    return BadRequest("PropertyName and value must not be empty.");
+                }
+
+                // Nếu value là "0", trả về tất cả các thực thể
+                if (value == "0")
+                {
+                    var getAll = IncludeRelatedEntities(_context.Set<TEntity>())
+                        .OrderByDescending(e => EF.Property<object>(e, "CreatedAt"));
+
+                    return await CreatePaginatedResponse(getAll, page, size);
+                }
+
+                // Kiểm tra xem propertyName có tồn tại trong TEntity không
+                var entityType = typeof(TEntity);
+                var propertyInfo = entityType.GetProperty(propertyName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                if (propertyInfo == null)
+                {
+                    return BadRequest($"Property '{propertyName}' does not exist in '{entityType.Name}'.");
+                }
+
+                // Tiếp tục xử lý nếu propertyName tồn tại
+                var entities = IncludeRelatedEntities(_context.Set<TEntity>())
+                    .Where(GetFilterExpression(propertyName, value))
+                    .OrderByDescending(e => EF.Property<object>(e, "CreatedAt"));
+
+                return await CreatePaginatedResponse(entities, page, size);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        private Expression<Func<TEntity, bool>> GetFilterExpression(string propertyName, string value)
+        {
+            var parameter = Expression.Parameter(typeof(TEntity), "e");
+            var property = Expression.Property(parameter, propertyName);
+            var constant = Expression.Constant(Convert.ChangeType(value, property.Type));
+            var equal = Expression.Equal(property, constant);
+
+            return Expression.Lambda<Func<TEntity, bool>>(equal, parameter);
+        }
+
+        private async Task<ActionResult<PaginatedResponse<DTO>>> CreatePaginatedResponse(IQueryable<TEntity> query, int page, int size)
+        {
+            var pagedList = await query.ToPagedListAsync(page, size);
+            var dtoList = _mapper.Map<IEnumerable<DTO>>(pagedList).ToList();
+
+            return Ok(new PaginatedResponse<DTO>
+            {
+                Items = dtoList,
+                PageNumber = pagedList.PageNumber,
+                PageSize = pagedList.PageSize,
+                TotalItemCount = pagedList.TotalItemCount,
+                PageCount = pagedList.PageCount,
+                HasNextPage = pagedList.HasNextPage,
+                HasPreviousPage = pagedList.HasPreviousPage,
+                IsFirstPage = pagedList.IsFirstPage,
+                IsLastPage = pagedList.IsLastPage,
+                StartPage = CalculateStartPage(pagedList.PageNumber, pagedList.PageCount, maxPages: 5),
+                EndPage = CalculateEndPage(pagedList.PageNumber, pagedList.PageCount, maxPages: 5)
+            });
+        }
+
     }
 }
