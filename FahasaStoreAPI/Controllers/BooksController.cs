@@ -206,8 +206,13 @@ namespace FahasaStoreAPI.Controllers
             var trendingBooksQuery = _context.OrderItems.Include(oi => oi.Order)
                                               .Where(oi => oi.Order.CreatedAt >= startDate && oi.Order.CreatedAt <= endDate)
                                               .GroupBy(oi => oi.BookId)
-                                              .OrderByDescending(g => g.Count())
-                                              .Select(g => g.Key);
+                                              .Select(g => new
+                                              {
+                                                  BookId = g.Key,
+                                                  TotalQuantity = g.Sum(oi => oi.Quantity)
+                                              })
+                                             .OrderByDescending(g => g.TotalQuantity)
+                                             .Select(g => g.BookId);
 
             // Bước 2: Phân trang danh sách trendingBooks
             var pagedTrendingBooks = await trendingBooksQuery.ToPagedListAsync(page, size);
