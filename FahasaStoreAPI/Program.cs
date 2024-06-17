@@ -10,6 +10,7 @@ using FahasaStoreAPI.Identity;
 using FahasaStoreAPI.Services;
 using FahasaStoreAPI.Entities;
 using FahasaStoreAPI;
+using FahasaStoreAPI.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,6 +61,7 @@ builder.Services.AddDbContext<FahasaStoreDBContext>(option =>
 
 builder.Services.AddScoped<IImageUploader, ImageUploader>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IBookRecommendationSystem, BookRecommendationSystem>();
 
 builder.Services.AddCors(p => p.AddPolicy("MyCors", build =>
 {
@@ -95,6 +97,27 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
     };
 });
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AppRole.Admin, policy =>
+    {
+        policy.RequireRole(AppRole.Admin);
+    });
+    options.AddPolicy(AppRole.Staff, policy =>
+    {
+        policy.RequireRole(AppRole.Staff);
+    });
+    options.AddPolicy(AppRole.Customer, policy =>
+    {
+        policy.RequireRole(AppRole.Customer);
+    });
+    options.AddPolicy("AdminOrStaff", policy =>
+    {
+        policy.RequireRole(AppRole.Admin, AppRole.Staff);
+    });
+});
+
 
 builder.Services.Configure<IdentityOptions>(options =>
 {

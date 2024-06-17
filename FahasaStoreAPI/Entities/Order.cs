@@ -9,6 +9,7 @@ namespace FahasaStoreAPI.Entities
         {
             OrderItems = new HashSet<OrderItem>();
             OrderStatuses = new HashSet<OrderStatus>();
+            Reviews = new HashSet<Review>();
         }
 
         public int Id { get; set; }
@@ -26,5 +27,6 @@ namespace FahasaStoreAPI.Entities
         public virtual Payment? Payment { get; set; }
         public virtual ICollection<OrderItem> OrderItems { get; set; }
         public virtual ICollection<OrderStatus> OrderStatuses { get; set; }
+        public virtual ICollection<Review> Reviews { get; set; }
     }
 }

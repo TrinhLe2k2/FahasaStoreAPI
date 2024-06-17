@@ -52,6 +52,7 @@ namespace FahasaStoreAPI.Controllers
 
                 await _context.SaveChangesAsync();
 
+                model = _mapper.Map<CartItemModel>(entity);
                 return CreatedAtAction(nameof(GetEntity), new { id = GetEntityId(entity) }, model);
             }
             catch (Exception ex)
@@ -60,8 +61,41 @@ namespace FahasaStoreAPI.Controllers
             }
         }
 
+        //[HttpGet("IntoMoney")]
+        //public async Task<ActionResult> IntoMoney([FromQuery] int[] cartItemIds)
+        //{
+        //    if (cartItemIds == null || cartItemIds.Length == 0)
+        //    {
+        //        return Ok(0);
+        //    }
+
+        //    // Get the CartItems from the database
+        //    var cartItems = await _context.CartItems
+        //        .Where(ci => cartItemIds.Contains(ci.Id))
+        //        .Include(ci => ci.Book) // Include the related Book entity
+        //        .ToListAsync();
+
+        //    if (cartItems == null || cartItems.Count == 0)
+        //    {
+        //        return NotFound("No cart items found for the given IDs.");
+        //    }
+
+        //    // Calculate the total money
+        //    int totalMoney = 0;
+        //    foreach (var item in cartItems)
+        //    {
+        //        var price = item.Book.Price;
+        //        var discountPercentage = item.Book.DiscountPercentage;
+        //        var currentPrice = price - price * discountPercentage / 100;
+        //        var quantity = item.Quantity;
+        //        totalMoney += currentPrice * quantity;
+        //    }
+
+        //    return Ok(totalMoney);
+        //}
+
         [HttpGet("IntoMoney")]
-        public async Task<ActionResult> IntoMoney([FromQuery] int[] cartItemIds)
+        public async Task<ActionResult> IntoMoney([FromQuery] int[] cartItemIds, int? voucherId, string? voucherCode)
         {
             if (cartItemIds == null || cartItemIds.Length == 0)
             {
@@ -90,7 +124,39 @@ namespace FahasaStoreAPI.Controllers
                 totalMoney += currentPrice * quantity;
             }
 
+            // Apply voucher discount if applicable
+            if (voucherId.HasValue || !string.IsNullOrEmpty(voucherCode))
+            {
+                Voucher? voucher = null;
+
+                if (voucherId.HasValue)
+                {
+                    voucher = await _context.Vouchers.FindAsync(voucherId.Value);
+                }
+                else if (!string.IsNullOrEmpty(voucherCode))
+                {
+                    voucher = await _context.Vouchers.FirstOrDefaultAsync(v => v.Code == voucherCode);
+                }
+
+                if (voucher != null)
+                {
+                    // Check if the voucher is valid
+                    var now = DateTime.Now;
+                    if (now >= voucher.StartDate && now <= voucher.EndDate && totalMoney >= voucher.MinOrderAmount)
+                    {
+                        // Calculate the discount amount
+                        var discountAmount = totalMoney * voucher.DiscountPercent / 100;
+                        if (discountAmount > voucher.MaxDiscountAmount)
+                        {
+                            discountAmount = voucher.MaxDiscountAmount;
+                        }
+                        totalMoney -= discountAmount;
+                    }
+                }
+            }
+
             return Ok(totalMoney);
         }
+
     }
 }

@@ -1,4 +1,5 @@
-﻿using FahasaStoreAPI.Models;
+﻿using FahasaStoreAPI.Helpers;
+using FahasaStoreAPI.Models;
 using FahasaStoreAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -49,6 +50,65 @@ namespace FahasaStoreAPI.Controllers
         {
             await _accountService.SignOutAsync();
             return Ok(new { message = "SignOut successful" });
+        }
+
+        [HttpPost("AddRoleToUser")]
+        [Authorize(AppRole.Admin)]
+        public async Task<IActionResult> AddRoleToUser(string userId, string role)
+        {
+            try
+            {
+                bool result = await _accountService.AddRoleToUser(userId, role);
+                if (result)
+                {
+                    return Ok(new { message = $"Vai trò '{role}' đã được thêm cho người dùng với ID '{userId}'." });
+                }
+                else
+                {
+                    return BadRequest(new { message = $"Người dùng với ID '{userId}' đã có vai trò '{userId}' hoặc có lỗi xảy ra." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"Có lỗi xảy ra: {ex.Message}" });
+            }
+        }
+
+        [HttpGet("GetUserRoles/{userId}")]
+        [Authorize(AppRole.Admin)]
+        public async Task<IActionResult> GetUserRoles(string userId)
+        {
+            try
+            {
+                var roles = await _accountService.GetUserRoles(userId);
+                return Ok(roles);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"Có lỗi xảy ra: {ex.Message}" });
+            }
+        }
+
+        [HttpDelete("RemoveRoleFromUser")]
+        [Authorize(AppRole.Admin)]
+        public async Task<IActionResult> RemoveRoleFromUser(string userId, string role)
+        {
+            try
+            {
+                bool result = await _accountService.RemoveRoleFromUser(userId, role);
+                if (result)
+                {
+                    return Ok(new { message = $"Vai trò '{role}' đã được gỡ khỏi người dùng với ID '{userId}'." });
+                }
+                else
+                {
+                    return BadRequest(new { message = $"Người dùng với ID '{userId}' không có vai trò '{role}' hoặc có lỗi xảy ra." });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"Có lỗi xảy ra: {ex.Message}" });
+            }
         }
     }
 }

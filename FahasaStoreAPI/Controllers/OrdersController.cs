@@ -28,6 +28,7 @@ namespace FahasaStoreAPI.Controllers
                 .Include(e => e.User)
                 .Include(e => e.Voucher)
                 .Include(e => e.Payment)
+                .Include(e => e.Reviews)
                 .Include(e => e.OrderItems)
                     .ThenInclude(oi => oi.Book)
                         .ThenInclude(b => b.PosterImages)

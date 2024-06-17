@@ -16,6 +16,9 @@ namespace FahasaStoreAPI.Services
         public Task<IdentityResult> SignUpAsync(SignUpModel model);
         public Task<string> SignInAsync(SignInModel model);
         Task SignOutAsync();
+        Task<bool> AddRoleToUser(string userId, string role);
+        Task<List<string>> GetUserRoles(string userId);
+        Task<bool> RemoveRoleFromUser(string userId, string role);
     }
     public class AccountService : IAccountService
     {
@@ -127,5 +130,101 @@ namespace FahasaStoreAPI.Services
         {
             await signInManager.SignOutAsync();
         }
+
+        public async Task<bool> AddNewRole(string role)
+        {
+            if (string.IsNullOrEmpty(role))
+            {
+                throw new ArgumentException("Role name cannot be null or empty", nameof(role));
+            }
+
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                var result = await roleManager.CreateAsync(new IdentityRole(role));
+                return result.Succeeded;
+            }
+            return false;
+        }
+        public async Task<bool> AddRoleToUser(string userId, string role)
+        {
+            // Kiểm tra tham số
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("Tên người dùng không được để trống", nameof(userId));
+            }
+            if (string.IsNullOrEmpty(role))
+            {
+                throw new ArgumentException("Tên vai trò không được để trống", nameof(role));
+            }
+
+            // Tìm người dùng theo id người dùng
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new InvalidOperationException("Người dùng không tồn tại");
+            }
+
+            // Kiểm tra xem vai trò có tồn tại không
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                var createRole = await roleManager.CreateAsync(new IdentityRole(role));
+                if (!createRole.Succeeded)
+                {
+                    throw new InvalidOperationException("Không thể tạo vai trò mới");
+                }
+            }
+
+            // Kiểm tra xem người dùng đã có vai trò này chưa
+            if (await userManager.IsInRoleAsync(user, role))
+            {
+                return false; // Người dùng đã có vai trò này
+            }
+
+            // Thêm vai trò cho người dùng
+            var result = await userManager.AddToRoleAsync(user, role);
+            return result.Succeeded;
+        }
+        public async Task<List<string>> GetUserRoles(string userId)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("ID người dùng không được để trống", nameof(userId));
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new InvalidOperationException("Người dùng không tồn tại");
+            }
+
+            var roles = await userManager.GetRolesAsync(user);
+            return new List<string>(roles);
+        }
+        public async Task<bool> RemoveRoleFromUser(string userId, string role)
+        {
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new ArgumentException("ID người dùng không được để trống", nameof(userId));
+            }
+            if (string.IsNullOrEmpty(role))
+            {
+                throw new ArgumentException("Tên vai trò không được để trống", nameof(role));
+            }
+
+            var user = await userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new InvalidOperationException("Người dùng không tồn tại");
+            }
+
+            if (!await userManager.IsInRoleAsync(user, role))
+            {
+                return false; // Người dùng không có vai trò này
+            }
+
+            var result = await userManager.RemoveFromRoleAsync(user, role);
+            return result.Succeeded;
+        }
+
     }
 }

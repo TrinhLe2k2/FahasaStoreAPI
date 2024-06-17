@@ -2,10 +2,17 @@
 
 namespace FahasaStoreAPI.Services
 {
-    public class BookRecommendationSystem
+    public interface IBookRecommendationSystem 
+    {
+        IEnumerable<int> FindSimilarBooks(Book book, int take);
+        IEnumerable<int> FindSimilarBooksBasedOnCart(IEnumerable<Book> cart, int take, string aggregationMethod = "average");
+    }
+
+    public class BookRecommendationSystem : IBookRecommendationSystem
     {
         private readonly FahasaStoreDBContext _context;
         private readonly List<Book> _books;
+        private readonly Dictionary<int, double[]> _bookFeatureVectors;
 
         // Tạo một mảng các ký tự đặc biệt bạn muốn loại bỏ
         private char[] punctuationChars = { '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+', '[', '{', ']', '}', '\\', '|', ';', ':', '\'', '"', '<', ',', '>', '.', '/', '?' };
@@ -19,6 +26,7 @@ namespace FahasaStoreAPI.Services
         {
             _context = new FahasaStoreDBContext();
             _books = _context.Books.ToList();
+            _bookFeatureVectors = _books.ToDictionary(book => book.Id, book => FeatureVector(book)[book.Id]);
         }
 
         // Tiền xử lý văn bản
@@ -99,12 +107,53 @@ namespace FahasaStoreAPI.Services
         }
 
         // Tính cosine similarity
-        private double ComputeCosineSimilarityMatrix(double[] vectorA, double[] vectorB)
+        private double ComputeCosineSimilarity(double[] vectorA, double[] vectorB)
         {
-            var computeCosineSimilarity = DotProduct(vectorA, vectorB) / (Norm(vectorA) * Norm(vectorB));
-            return computeCosineSimilarity;
+            // Điều chỉnh độ dài của vector để chúng có cùng độ dài
+            AdjustVectors(ref vectorA, ref vectorB);
+
+            // Tính toán cosine similarity
+            var dotProduct = DotProduct(vectorA, vectorB);
+            var normA = Norm(vectorA);
+            var normB = Norm(vectorB);
+
+            // Bảo đảm không chia cho 0
+            if (normA == 0 || normB == 0)
+            {
+                return 0.0;
+            }
+
+            var cosineSimilarity = dotProduct / (normA * normB);
+            return cosineSimilarity;
         }
 
+        private void AdjustVectors(ref double[] vectorA, ref double[] vectorB)
+        {
+            // Lấy độ dài của cả hai vector
+            int lengthA = vectorA.Length;
+            int lengthB = vectorB.Length;
+
+            // Nếu độ dài không bằng nhau, điều chỉnh độ dài
+            if (lengthA != lengthB)
+            {
+                // Độ dài lớn hơn làm chuẩn
+                int targetLength = Math.Max(lengthA, lengthB);
+
+                // Điều chỉnh vector A
+                if (lengthA < targetLength)
+                {
+                    Array.Resize(ref vectorA, targetLength);
+                }
+
+                // Điều chỉnh vector B
+                if (lengthB < targetLength)
+                {
+                    Array.Resize(ref vectorB, targetLength);
+                }
+            }
+        }
+
+        // Content base
         public IEnumerable<int> FindSimilarBooks(Book book, int take)
         {
             var vectorA = FeatureVector(book);
@@ -114,7 +163,7 @@ namespace FahasaStoreAPI.Services
             foreach (var otherBook in _books)
             {
                 vectorB = FeatureVector(otherBook);
-                var computeCosine = ComputeCosineSimilarityMatrix(vectorA[book.Id], vectorB[otherBook.Id]);
+                var computeCosine = ComputeCosineSimilarity(vectorA[book.Id], vectorB[otherBook.Id]);
                 similarBooksDictionary[otherBook.Id] = computeCosine;
             }
             var similarBooks = similarBooksDictionary
@@ -124,5 +173,142 @@ namespace FahasaStoreAPI.Services
                 .Take(take);
             return similarBooks.ToList();
         }
+
+        // ------------------------------------------------------------------ From Cart
+
+        // Tạo vector đặc trưng tổng hợp cho giỏ hàng
+        private double[] AggregateFeatureVectors(IEnumerable<double[]> vectors)
+        {
+            if (!vectors.Any()) return new double[0];
+            int length = vectors.Sum(vector => vector.Length);
+            double[] aggregateVector = new double[length];
+
+            foreach (var vector in vectors)
+            {
+                for (int i = 0; i < vector.Length; i++)
+                {
+                    aggregateVector[i] += vector[i];
+                }
+            }
+
+            return aggregateVector;
+        }
+
+        // Trung bình vector đặc trưng
+        private double[] AverageFeatureVectors(IEnumerable<double[]> vectors)
+        {
+            if (!vectors.Any()) return new double[0];
+            int length = vectors.Sum(vector => vector.Length);
+            double[] averageVector = new double[length];
+            int count = vectors.Count();
+
+            foreach (var vector in vectors)
+            {
+                for (int i = 0; i < vector.Length; i++)
+                {
+                    averageVector[i] += vector[i];
+                }
+            }
+
+            for (int i = 0; i < length; i++)
+            {
+                averageVector[i] /= count;
+            }
+
+            return averageVector;
+        }
+
+        // Max pooling
+        private double[] MaxPoolingFeatureVectors(IEnumerable<double[]> vectors)
+        {
+            if (!vectors.Any()) return new double[0];
+            int length = vectors.Sum(vector => vector.Length);
+            double[] maxVector = new double[length];
+
+            foreach (var vector in vectors)
+            {
+                for (int i = 0; i < vector.Length; i++)
+                {
+                    if (vector[i] > maxVector[i])
+                    {
+                        maxVector[i] = vector[i];
+                    }
+                }
+            }
+
+            return maxVector;
+        }
+
+        // Min pooling
+        private double[] MinPoolingFeatureVectors(IEnumerable<double[]> vectors)
+        {
+            if (!vectors.Any()) return new double[0];
+            int length = vectors.Sum(vector => vector.Length);
+            double[] minVector = new double[length];
+
+            // Khởi tạo giá trị ban đầu của minVector thành giá trị rất lớn
+            for (int i = 0; i < length; i++)
+            {
+                minVector[i] = double.MaxValue;
+            }
+
+            foreach (var vector in vectors)
+            {
+                for (int i = 0; i < vector.Length; i++)
+                {
+                    if (vector[i] < minVector[i])
+                    {
+                        minVector[i] = vector[i];
+                    }
+                }
+            }
+
+            return minVector;
+        }
+
+        // item-based recommendation
+        public IEnumerable<int> FindSimilarBooksBasedOnCart(IEnumerable<Book> cart, int take, string aggregationMethod = "average")
+        {
+            var cartVectors = cart.Select(book => _bookFeatureVectors[book.Id]);
+            double[] aggregateVector;
+
+            switch (aggregationMethod.ToLower())
+            {
+                case "average":
+                    aggregateVector = AverageFeatureVectors(cartVectors);
+                    break;
+                case "max":
+                    aggregateVector = MaxPoolingFeatureVectors(cartVectors);
+                    break;
+                case "min":
+                    aggregateVector = MinPoolingFeatureVectors(cartVectors);
+                    break;
+                default:
+                    aggregateVector = AggregateFeatureVectors(cartVectors);
+                    break;
+            }
+
+            HashSet<int> cartBookIds = new HashSet<int>(cart.Select(book => book.Id));
+            Dictionary<int, double> similarBooksDictionary = new Dictionary<int, double>();
+
+            foreach (var otherBook in _books)
+            {
+                if (cartBookIds.Contains(otherBook.Id))
+                {
+                    continue; 
+                }
+                var otherBookVector = _bookFeatureVectors[otherBook.Id];
+                var similarity = ComputeCosineSimilarity(aggregateVector, otherBookVector);
+                similarBooksDictionary[otherBook.Id] = similarity;
+            }
+
+            var similarBooks = similarBooksDictionary
+                .OrderByDescending(e => e.Value)
+                .Select(e => e.Key)
+                .Take(take);
+
+            return similarBooks.ToList();
+        }
     }
 }
+

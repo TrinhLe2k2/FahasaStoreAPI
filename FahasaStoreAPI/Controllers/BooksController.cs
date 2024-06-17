@@ -15,8 +15,10 @@ namespace FahasaStoreAPI.Controllers
     [ApiController]
     public class BooksController : BaseController<Book, BookModel, BookDTO, int>
     {
-        public BooksController(FahasaStoreDBContext context, IMapper mapper) : base(context, mapper)
+        private readonly IBookRecommendationSystem _bookRecommendationSystem;
+        public BooksController(FahasaStoreDBContext context, IMapper mapper, IBookRecommendationSystem bookRecommendationSystem) : base(context, mapper)
         {
+            _bookRecommendationSystem = bookRecommendationSystem;
         }
 
         protected override int GetEntityId(Book entity)
@@ -58,7 +60,7 @@ namespace FahasaStoreAPI.Controllers
             {
                 return BadRequest();
             }
-            var res = new BookRecommendationSystem().FindSimilarBooks(currentBook, size);
+            var res = _bookRecommendationSystem.FindSimilarBooks(currentBook, size);
             var result = new List<Book>();
             var book = new Book();
             foreach (var itemId in res)
@@ -86,6 +88,88 @@ namespace FahasaStoreAPI.Controllers
             }
             return Ok(_mapper.Map<List<BookDTO>>(result));
         }
+
+        [HttpGet("FindSimilarBooksBasedOnCart/{cartId}")]
+        public async Task<ActionResult<List<BookDTO>>> FindSimilarBooksBasedOnCart(int cartId, int take = 10, string aggregationMethod = "average")
+        {
+            // Validate input parameters
+            if (cartId <= 0 || take <= 0)
+            {
+                return BadRequest("Invalid parameters.");
+            }
+
+            // Get the books in the cart
+            var cartBooks = await _context.CartItems
+                .Include(ci => ci.Book)
+                    .ThenInclude(b => b.Author)
+                .Where(ci => ci.CartId == cartId)
+                .Select(ci => ci.Book)
+                .ToListAsync();
+
+            if (cartBooks == null || cartBooks.Count == 0)
+            {
+                return NotFound("Cart is empty or does not exist.");
+            }
+
+            // Find similar books based on the cart items
+            var similarBookIds = _bookRecommendationSystem.FindSimilarBooksBasedOnCart(cartBooks, take, aggregationMethod);
+
+            // Fetch the similar books details from the database
+            var similarBooks = await _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.CoverType)
+                .Include(b => b.Dimension)
+                .Include(b => b.Subcategory)
+                .Include(b => b.CartItems)
+                .Include(b => b.FlashSaleBooks)
+                .Include(b => b.OrderItems)
+                .Include(b => b.PosterImages)
+                .Include(b => b.Reviews)
+                .Include(b => b.BookPartners)
+                .Where(b => similarBookIds.Contains(b.Id))
+                .ToListAsync();
+
+            // Map to DTO and return
+            var similarBooksDTO = _mapper.Map<List<BookDTO>>(similarBooks);
+            return Ok(similarBooksDTO);
+        }
+
+        //[HttpGet("FindSimilarBooksBasedOnCart")]
+        //public async Task<ActionResult> FindSimilarBooksBasedOnCart(int[] bookIds, int take, string aggregationMethod = "average")
+        //{
+        //    var currentBook = await _context.Books.FindAsync(id);
+        //    if (currentBook == null)
+        //    {
+        //        return BadRequest();
+        //    }
+        //    var res = _bookRecommendationSystem.FindSimilarBooksBasedOnCart();
+        //    var result = new List<Book>();
+        //    var book = new Book();
+        //    foreach (var itemId in res)
+        //    {
+        //        book = await _context.Books
+        //        .Include(e => e.Author)
+        //          .Include(e => e.CoverType)
+        //          .Include(e => e.Dimension)
+        //          .Include(e => e.Subcategory)
+        //          .Include(e => e.CartItems)
+        //          .Include(e => e.FlashSaleBooks)
+        //          .Include(e => e.OrderItems)
+        //          .Include(e => e.PosterImages)
+        //          .Include(e => e.Reviews)
+        //          .Include(e => e.BookPartners)
+        //        .FirstOrDefaultAsync(e => e.Id == itemId);
+        //        if (book != null)
+        //        {
+        //            // Kiểm tra xem cuốn sách đã tồn tại trong danh sách result chưa
+        //            if (!result.Contains(book))
+        //            {
+        //                result.Add(book);
+        //            }
+        //        }
+        //    }
+        //    return Ok(_mapper.Map<List<BookDTO>>(result));
+        //}
 
         // Xu hướng mua sắm trong ngày
         [HttpGet("trending/daily")]

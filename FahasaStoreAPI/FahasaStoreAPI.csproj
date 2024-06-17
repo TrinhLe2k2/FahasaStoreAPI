@@ -10,6 +10,7 @@
     <Compile Remove="Entities0\**" />
     <Compile Remove="Entities23\**" />
     <Compile Remove="Entities273h\**" />
+    <Compile Remove="Entities2\**" />
     <Compile Remove="Entities3\**" />
     <Compile Remove="Entitiess3\**" />
     <Compile Remove="EntitiesSuccess\**" />
@@ -18,6 +19,7 @@
     <Content Remove="Entities0\**" />
     <Content Remove="Entities23\**" />
     <Content Remove="Entities273h\**" />
+    <Content Remove="Entities2\**" />
     <Content Remove="Entities3\**" />
     <Content Remove="Entitiess3\**" />
     <Content Remove="EntitiesSuccess\**" />
@@ -26,6 +28,7 @@
     <EmbeddedResource Remove="Entities0\**" />
     <EmbeddedResource Remove="Entities23\**" />
     <EmbeddedResource Remove="Entities273h\**" />
+    <EmbeddedResource Remove="Entities2\**" />
     <EmbeddedResource Remove="Entities3\**" />
     <EmbeddedResource Remove="Entitiess3\**" />
     <EmbeddedResource Remove="EntitiesSuccess\**" />
@@ -34,6 +37,7 @@
     <None Remove="Entities0\**" />
     <None Remove="Entities23\**" />
     <None Remove="Entities273h\**" />
+    <None Remove="Entities2\**" />
     <None Remove="Entities3\**" />
     <None Remove="Entitiess3\**" />
     <None Remove="EntitiesSuccess\**" />

@@ -12,6 +12,7 @@ namespace FahasaStoreAPI.Models.DTO
         public int Id { get; set; }
         public string UserId { get; set; } = null!;
         public string ReceiverName { get; set; } = null!;
+        public string Phone { get; set; } = null!;
         public string Province { get; set; } = null!;
         public string District { get; set; } = null!;
         public string Ward { get; set; } = null!;
@@ -120,7 +121,9 @@ namespace FahasaStoreAPI.Models.DTO
         public int Quantity { get; set; }
         public double? Weight { get; set; }
         public int? PageCount { get; set; }
+        public int? QuantitySold { get; set; }
         public DateTime? CreatedAt { get; set; }
+
 
         public virtual AuthorModel Author { get; set; } = null!;
         public virtual CoverTypeModel CoverType { get; set; } = null!;
@@ -284,6 +287,7 @@ namespace FahasaStoreAPI.Models.DTO
         {
             OrderItems = new HashSet<OrderItemDTO>();
             OrderStatuses = new HashSet<OrderStatusDTO>();
+            Reviews = new HashSet<ReviewDTO>();
         }
 
         public int Id { get; set; }
@@ -297,6 +301,7 @@ namespace FahasaStoreAPI.Models.DTO
         public virtual PaymentModel? Payment { get; set; }
         public virtual ICollection<OrderItemDTO> OrderItems { get; set; }
         public virtual ICollection<OrderStatusDTO> OrderStatuses { get; set; }
+        public virtual ICollection<ReviewDTO> Reviews { get; set; }
     }
     public partial class OrderItemDTO
     {
@@ -393,6 +398,7 @@ namespace FahasaStoreAPI.Models.DTO
     {
         public int Id { get; set; }
         public int BookId { get; set; }
+        public int OrderId { get; set; }
         public string UserId { get; set; } = null!;
         public int Rating { get; set; }
         public string? Comment { get; set; }
@@ -400,6 +406,7 @@ namespace FahasaStoreAPI.Models.DTO
         public DateTime? CreatedAt { get; set; }
 
         public virtual BookModel Book { get; set; } = null!;
+        public virtual OrderModel Order { get; set; } = null!;
         public virtual AspNetUserModel User { get; set; } = null!;
     }
     public partial class StatusDTO

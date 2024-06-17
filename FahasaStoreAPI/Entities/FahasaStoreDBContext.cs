@@ -87,6 +87,10 @@ namespace FahasaStoreAPI.Entities
                     .HasMaxLength(50)
                     .HasColumnName("district");
 
+                entity.Property(e => e.Phone)
+                    .HasMaxLength(20)
+                    .HasColumnName("phone");
+
                 entity.Property(e => e.Province)
                     .HasMaxLength(50)
                     .HasColumnName("province");
@@ -107,7 +111,7 @@ namespace FahasaStoreAPI.Entities
                     .WithMany(p => p.Addresses)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Address__user_id__41EDCAC5");
+                    .HasConstraintName("FK__Address__user_id__3B40CD36");
             });
 
             modelBuilder.Entity<AspNetRole>(entity =>
@@ -285,7 +289,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<BookPartner>(entity =>
             {
-                entity.HasIndex(e => new { e.BookId, e.PartnerId }, "UQ__BookPart__2C7BEB524BEC02A2")
+                entity.HasIndex(e => new { e.BookId, e.PartnerId }, "UQ__BookPart__2C7BEB52A8EF80A8")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -318,7 +322,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Cart>(entity =>
             {
-                entity.HasIndex(e => e.UserId, "UQ__Carts__B9BE370E4ED1DE54")
+                entity.HasIndex(e => e.UserId, "UQ__Carts__B9BE370E4124E737")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -339,7 +343,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<CartItem>(entity =>
             {
-                entity.HasIndex(e => new { e.CartId, e.BookId }, "UQ__CartItem__2A65FB8885E3F246")
+                entity.HasIndex(e => new { e.CartId, e.BookId }, "UQ__CartItem__2A65FB8825BA3D4E")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -370,7 +374,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Category>(entity =>
             {
-                entity.HasIndex(e => e.Name, "UQ__Categori__72E12F1B33C2C6A4")
+                entity.HasIndex(e => e.Name, "UQ__Categori__72E12F1BD0E09494")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -391,7 +395,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<CoverType>(entity =>
             {
-                entity.HasIndex(e => e.TypeName, "UQ__CoverTyp__543C4FD961CFB3C0")
+                entity.HasIndex(e => e.TypeName, "UQ__CoverTyp__543C4FD949E641F2")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -408,7 +412,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Dimension>(entity =>
             {
-                entity.HasIndex(e => new { e.Length, e.Width, e.Height, e.Unit }, "UQ__Dimensio__FCE485DD6116FE3B")
+                entity.HasIndex(e => new { e.Length, e.Width, e.Height, e.Unit }, "UQ__Dimensio__FCE485DD656FCEC5")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -431,7 +435,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Favourite>(entity =>
             {
-                entity.HasIndex(e => new { e.UserId, e.BookId }, "UQ__Favourit__BD2EE6A0693D5DB9")
+                entity.HasIndex(e => new { e.UserId, e.BookId }, "UQ__Favourit__BD2EE6A07DDC771F")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -478,7 +482,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<FlashSaleBook>(entity =>
             {
-                entity.HasIndex(e => new { e.FlashSaleId, e.BookId }, "UQ__FlashSal__5124F239B159967A")
+                entity.HasIndex(e => new { e.FlashSaleId, e.BookId }, "UQ__FlashSal__5124F239AE28D262")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -513,7 +517,7 @@ namespace FahasaStoreAPI.Entities
             {
                 entity.ToTable("Menu");
 
-                entity.HasIndex(e => e.Name, "UQ__Menu__72E12F1BB115427E")
+                entity.HasIndex(e => e.Name, "UQ__Menu__72E12F1BA64C1C08")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -573,7 +577,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<NotificationType>(entity =>
             {
-                entity.HasIndex(e => e.Name, "UQ__Notifica__72E12F1BF9891494")
+                entity.HasIndex(e => e.Name, "UQ__Notifica__72E12F1BDCAE4A6F")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -590,9 +594,6 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Order>(entity =>
             {
-                entity.HasIndex(e => new { e.UserId, e.VoucherId }, "UQ__Orders__21B558F4778EAC77")
-                    .IsUnique();
-
                 entity.Property(e => e.Id).HasColumnName("id");
 
                 entity.Property(e => e.AddressId).HasColumnName("address_id");
@@ -608,7 +609,9 @@ namespace FahasaStoreAPI.Entities
 
                 entity.Property(e => e.PaymentMethodId).HasColumnName("payment_method_id");
 
-                entity.Property(e => e.UserId).HasColumnName("user_id");
+                entity.Property(e => e.UserId)
+                    .HasMaxLength(450)
+                    .HasColumnName("user_id");
 
                 entity.Property(e => e.VoucherId).HasColumnName("voucher_id");
 
@@ -616,29 +619,29 @@ namespace FahasaStoreAPI.Entities
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.AddressId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__address___503BEA1C");
+                    .HasConstraintName("FK__Orders__address___489AC854");
 
                 entity.HasOne(d => d.PaymentMethod)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.PaymentMethodId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__payment___51300E55");
+                    .HasConstraintName("FK__Orders__payment___498EEC8D");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Orders__user_id__4E53A1AA");
+                    .HasConstraintName("FK__Orders__user_id__46B27FE2");
 
                 entity.HasOne(d => d.Voucher)
                     .WithMany(p => p.Orders)
                     .HasForeignKey(d => d.VoucherId)
-                    .HasConstraintName("FK__Orders__voucher___4F47C5E3");
+                    .HasConstraintName("FK__Orders__voucher___47A6A41B");
             });
 
             modelBuilder.Entity<OrderItem>(entity =>
             {
-                entity.HasIndex(e => new { e.OrderId, e.BookId }, "UQ__OrderIte__42C9B3869DCDB72C")
+                entity.HasIndex(e => new { e.OrderId, e.BookId }, "UQ__OrderIte__42C9B38657ED40FE")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -658,20 +661,20 @@ namespace FahasaStoreAPI.Entities
                     .WithMany(p => p.OrderItems)
                     .HasForeignKey(d => d.BookId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__OrderItem__book___56E8E7AB");
+                    .HasConstraintName("FK__OrderItem__book___4F47C5E3");
 
                 entity.HasOne(d => d.Order)
                     .WithMany(p => p.OrderItems)
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__OrderItem__order__55F4C372");
+                    .HasConstraintName("FK__OrderItem__order__4E53A1AA");
             });
 
             modelBuilder.Entity<OrderStatus>(entity =>
             {
                 entity.ToTable("OrderStatus");
 
-                entity.HasIndex(e => new { e.OrderId, e.StatusId }, "UQ__OrderSta__4531597B8C3294A6")
+                entity.HasIndex(e => new { e.OrderId, e.StatusId }, "UQ__OrderSta__4531597B3DC920C9")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -689,13 +692,13 @@ namespace FahasaStoreAPI.Entities
                     .WithMany(p => p.OrderStatuses)
                     .HasForeignKey(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__OrderStat__order__5CA1C101");
+                    .HasConstraintName("FK__OrderStat__order__55009F39");
 
                 entity.HasOne(d => d.Status)
                     .WithMany(p => p.OrderStatuses)
                     .HasForeignKey(d => d.StatusId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__OrderStat__statu__5D95E53A");
+                    .HasConstraintName("FK__OrderStat__statu__55F4C372");
             });
 
             modelBuilder.Entity<Partner>(entity =>
@@ -738,7 +741,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<PartnerType>(entity =>
             {
-                entity.HasIndex(e => e.Name, "UQ__PartnerT__72E12F1BC6E01965")
+                entity.HasIndex(e => e.Name, "UQ__PartnerT__72E12F1B7757EE1C")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -755,7 +758,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Payment>(entity =>
             {
-                entity.HasIndex(e => e.OrderId, "UQ__Payments__46596228B6435DDF")
+                entity.HasIndex(e => e.OrderId, "UQ__Payments__46596228A000210A")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -771,12 +774,12 @@ namespace FahasaStoreAPI.Entities
                     .WithOne(p => p.Payment)
                     .HasForeignKey<Payment>(d => d.OrderId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Payments__order___625A9A57");
+                    .HasConstraintName("FK__Payments__order___5AB9788F");
             });
 
             modelBuilder.Entity<PaymentMethod>(entity =>
             {
-                entity.HasIndex(e => e.Name, "UQ__PaymentM__72E12F1B323351F4")
+                entity.HasIndex(e => e.Name, "UQ__PaymentM__72E12F1B3CE92E76")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -799,7 +802,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Platform>(entity =>
             {
-                entity.HasIndex(e => e.PlatformName, "UQ__Platform__139DBE4493E7C44B")
+                entity.HasIndex(e => e.PlatformName, "UQ__Platform__139DBE449BE9205D")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -846,7 +849,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Review>(entity =>
             {
-                entity.HasIndex(e => new { e.BookId, e.UserId }, "UQ__Reviews__A296F990E720AAA0")
+                entity.HasIndex(e => new { e.BookId, e.OrderId, e.UserId }, "UQ__Reviews__C3D132F5857FF73C")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -864,6 +867,8 @@ namespace FahasaStoreAPI.Entities
                     .HasColumnName("created_at")
                     .HasDefaultValueSql("(getdate())");
 
+                entity.Property(e => e.OrderId).HasColumnName("order_id");
+
                 entity.Property(e => e.Rating).HasColumnName("rating");
 
                 entity.Property(e => e.UserId).HasColumnName("user_id");
@@ -872,20 +877,26 @@ namespace FahasaStoreAPI.Entities
                     .WithMany(p => p.Reviews)
                     .HasForeignKey(d => d.BookId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Reviews__book_id__3C34F16F");
+                    .HasConstraintName("FK__Reviews__book_id__5F7E2DAC");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.Reviews)
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK__Reviews__order_i__607251E5");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Reviews)
                     .HasForeignKey(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK__Reviews__user_id__3D2915A8");
+                    .HasConstraintName("FK__Reviews__user_id__6166761E");
             });
 
             modelBuilder.Entity<Status>(entity =>
             {
                 entity.ToTable("Status");
 
-                entity.HasIndex(e => e.Name, "UQ__Status__72E12F1BBD7C0CA8")
+                entity.HasIndex(e => e.Name, "UQ__Status__72E12F1B6D4F2E1F")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -902,7 +913,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Subcategory>(entity =>
             {
-                entity.HasIndex(e => e.Name, "UQ__Subcateg__72E12F1B2AC1B543")
+                entity.HasIndex(e => e.Name, "UQ__Subcateg__72E12F1B3749E89D")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -931,7 +942,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Topic>(entity =>
             {
-                entity.HasIndex(e => e.TopicName, "UQ__Topics__54BAE5EC3E3591D0")
+                entity.HasIndex(e => e.TopicName, "UQ__Topics__54BAE5EC34FFF2B3")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -948,7 +959,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<TopicContent>(entity =>
             {
-                entity.HasIndex(e => e.Title, "UQ__TopicCon__E52A1BB3D379C4AC")
+                entity.HasIndex(e => e.Title, "UQ__TopicCon__E52A1BB3E684871D")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");
@@ -975,7 +986,7 @@ namespace FahasaStoreAPI.Entities
 
             modelBuilder.Entity<Voucher>(entity =>
             {
-                entity.HasIndex(e => e.Code, "UQ__Vouchers__357D4CF939D68C3D")
+                entity.HasIndex(e => e.Code, "UQ__Vouchers__357D4CF9DB4F8392")
                     .IsUnique();
 
                 entity.Property(e => e.Id).HasColumnName("id");

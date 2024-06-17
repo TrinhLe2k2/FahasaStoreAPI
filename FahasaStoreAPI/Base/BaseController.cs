@@ -150,7 +150,7 @@ namespace FahasaStoreAPI.Controllers
 
             _context.Set<TEntity>().Add(entity);
             await _context.SaveChangesAsync();
-
+            model = _mapper.Map<TModel>(entity);
             return CreatedAtAction(nameof(GetEntity), new { id = GetEntityId(entity) }, model);
         }
         // DELETE: api/[controller]/{id}
