@@ -19,6 +19,7 @@ namespace FahasaStoreAPI.Services
         Task<bool> AddRoleToUser(string userId, string role);
         Task<List<string>> GetUserRoles(string userId);
         Task<bool> RemoveRoleFromUser(string userId, string role);
+        Task<IdentityResult> UpdateUserAsync(string id, string? fullname, string? email, string? phone, string? currentPassword, string? newPassword);
     }
     public class AccountService : IAccountService
     {
@@ -224,6 +225,32 @@ namespace FahasaStoreAPI.Services
 
             var result = await userManager.RemoveFromRoleAsync(user, role);
             return result.Succeeded;
+        }
+        public async Task<IdentityResult> UpdateUserAsync(string id, string? fullname, string? email, string? phone, string? currentPassword, string? newPassword)
+        {
+
+            var existingUser = await userManager.FindByIdAsync(id);
+            if (existingUser == null)
+            {
+                throw new KeyNotFoundException($"User with ID '{id}' not found.");
+            }
+
+            if (fullname != null) existingUser.FullName = fullname;
+            if (email != null) existingUser.Email = email;
+            if (phone != null) existingUser.PhoneNumber = phone;
+
+            IdentityResult passwordChangeResult = IdentityResult.Success;
+            if (!string.IsNullOrEmpty(newPassword))
+            {
+                passwordChangeResult = await userManager.ChangePasswordAsync(existingUser, currentPassword, newPassword);
+                if (!passwordChangeResult.Succeeded)
+                {
+                    return passwordChangeResult;
+                }
+            }
+
+            var result = await userManager.UpdateAsync(existingUser);
+            return result;
         }
 
     }

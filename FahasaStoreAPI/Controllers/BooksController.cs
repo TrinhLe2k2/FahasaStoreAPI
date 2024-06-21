@@ -8,6 +8,7 @@ using FahasaStoreAPI.Models;
 using X.PagedList;
 using FahasaStoreAPI.Models.DTO;
 using FahasaStoreAPI.Models.Response;
+using System.Drawing.Printing;
 
 namespace FahasaStoreAPI.Controllers
 {
@@ -90,10 +91,10 @@ namespace FahasaStoreAPI.Controllers
         }
 
         [HttpGet("FindSimilarBooksBasedOnCart/{cartId}")]
-        public async Task<ActionResult<List<BookDTO>>> FindSimilarBooksBasedOnCart(int cartId, int take = 10, string aggregationMethod = "average")
+        public async Task<ActionResult<List<BookDTO>>> FindSimilarBooksBasedOnCart(int cartId, int page = 1, int size = 10, string aggregationMethod = "average")
         {
             // Validate input parameters
-            if (cartId <= 0 || take <= 0)
+            if (cartId <= 0)
             {
                 return BadRequest("Invalid parameters.");
             }
@@ -112,26 +113,60 @@ namespace FahasaStoreAPI.Controllers
             }
 
             // Find similar books based on the cart items
-            var similarBookIds = _bookRecommendationSystem.FindSimilarBooksBasedOnCart(cartBooks, take, aggregationMethod);
+            var similarBookIds = _bookRecommendationSystem.FindSimilarBooksBasedOnCart(cartBooks, 100, aggregationMethod);
+
+            
+
+            var query = _context.Books
+            .Include(b => b.Author)
+            .Include(b => b.CoverType)
+            .Include(b => b.Dimension)
+            .Include(b => b.Subcategory)
+            .Include(b => b.CartItems)
+            .Include(b => b.FlashSaleBooks)
+            .Include(b => b.OrderItems)
+            .Include(b => b.PosterImages)
+            .Include(b => b.Reviews)
+            .Include(b => b.BookPartners)
+            .Where(b => similarBookIds.Contains(b.Id));
+
+            var pagedBooks = await query.ToPagedListAsync(page, size);
+            var booksDTO = _mapper.Map<List<BookDTO>>(pagedBooks);
+
+            var response = new PaginatedResponse<BookDTO>
+            {
+                Items = booksDTO,
+                PageNumber = pagedBooks.PageNumber,
+                PageSize = pagedBooks.PageSize,
+                TotalItemCount = pagedBooks.TotalItemCount,
+                PageCount = pagedBooks.PageCount,
+                HasNextPage = pagedBooks.HasNextPage,
+                HasPreviousPage = pagedBooks.HasPreviousPage,
+                IsFirstPage = pagedBooks.IsFirstPage,
+                IsLastPage = pagedBooks.IsLastPage,
+                StartPage = CalculateStartPage(pagedBooks.PageNumber, pagedBooks.PageCount, maxPages: 5),
+                EndPage = CalculateEndPage(pagedBooks.PageNumber, pagedBooks.PageCount, maxPages: 5)
+            };
+
+            return Ok(response);
 
             // Fetch the similar books details from the database
-            var similarBooks = await _context.Books
-                .Include(b => b.Author)
-                .Include(b => b.CoverType)
-                .Include(b => b.Dimension)
-                .Include(b => b.Subcategory)
-                .Include(b => b.CartItems)
-                .Include(b => b.FlashSaleBooks)
-                .Include(b => b.OrderItems)
-                .Include(b => b.PosterImages)
-                .Include(b => b.Reviews)
-                .Include(b => b.BookPartners)
-                .Where(b => similarBookIds.Contains(b.Id))
-                .ToListAsync();
-
+            //var similarBooks = await _context.Books
+            //    .Include(b => b.Author)
+            //    .Include(b => b.CoverType)
+            //    .Include(b => b.Dimension)
+            //    .Include(b => b.Subcategory)
+            //    .Include(b => b.CartItems)
+            //    .Include(b => b.FlashSaleBooks)
+            //    .Include(b => b.OrderItems)
+            //    .Include(b => b.PosterImages)
+            //    .Include(b => b.Reviews)
+            //    .Include(b => b.BookPartners)
+            //    .Where(b => similarBookIds.Contains(b.Id))
+            //    .ToListAsync();
             // Map to DTO and return
-            var similarBooksDTO = _mapper.Map<List<BookDTO>>(similarBooks);
-            return Ok(similarBooksDTO);
+            //var similarBooksDTO = _mapper.Map<List<BookDTO>>(similarBooks);
+            //return Ok(similarBooksDTO);
         }
 
         //[HttpGet("FindSimilarBooksBasedOnCart")]

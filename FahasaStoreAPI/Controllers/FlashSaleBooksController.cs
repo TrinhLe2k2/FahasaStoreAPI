@@ -51,7 +51,7 @@ namespace FahasaStoreAPI.Controllers
                 Quantity = entity.Quantity,
                 CreatedAt = entity.CreatedAt,
                 Book = _mapper.Map<BookModel>(entity.Book),
-                Poster = entity.Book.PosterImages.FirstOrDefault()?.ImageUrl,
+                Poster = entity.Book.PosterImages.LastOrDefault()?.ImageUrl,
                 FlashSale = _mapper.Map<FlashSaleModel>(entity.FlashSale),
                 Sold = entity.Book.OrderItems
                     .Where(oi => oi.CreatedAt >= entity.FlashSale.StartDate && oi.CreatedAt <= entity.FlashSale.EndDate)

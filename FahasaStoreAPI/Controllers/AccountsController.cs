@@ -1,4 +1,5 @@
 ﻿using FahasaStoreAPI.Helpers;
+using FahasaStoreAPI.Identity;
 using FahasaStoreAPI.Models;
 using FahasaStoreAPI.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -108,6 +109,32 @@ namespace FahasaStoreAPI.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { error = $"Có lỗi xảy ra: {ex.Message}" });
+            }
+        }
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateUser(string id, string? fullname, string? email, string? phone, string? currentPassword, string? newPassword)
+        {
+
+            try
+            {
+                
+                var result = await _accountService.UpdateUserAsync(id, fullname, email, phone, currentPassword, newPassword);
+
+                if (result.Succeeded)
+                {
+                    return Ok(new { message = "User updated successfully." });
+                }
+
+                return BadRequest(result.Errors);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new { message = ex.Message });
             }
         }
     }
