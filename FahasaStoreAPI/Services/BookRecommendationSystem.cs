@@ -1,4 +1,5 @@
 ﻿using FahasaStoreAPI.Entities;
+using Microsoft.EntityFrameworkCore;
 
 namespace FahasaStoreAPI.Services
 {
@@ -25,7 +26,12 @@ namespace FahasaStoreAPI.Services
         public BookRecommendationSystem()
         {
             _context = new FahasaStoreDBContext();
-            _books = _context.Books.ToList();
+            _books = _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.CoverType)
+                .Include(b => b.Subcategory)
+                    .ThenInclude(sc => sc.Category)
+                .ToList();
             _bookFeatureVectors = _books.ToDictionary(book => book.Id, book => FeatureVector(book)[book.Id]);
         }
 
@@ -63,6 +69,10 @@ namespace FahasaStoreAPI.Services
         {
             // Đếm số lượng văn bản chứa từ cần tính IDF
             int documentFrequency = _books.Count(book => PreprocessText(book.Description).Contains(term));
+            if (documentFrequency == 0)
+            {
+                return 0.0;
+            }
             // Tính toán và trả về giá trị IDF
             var idf = Math.Log((double)_books.Count / (documentFrequency));
             return Math.Round(idf, 4);
@@ -77,8 +87,38 @@ namespace FahasaStoreAPI.Services
             return Math.Round(tfidf, 4);
         }
 
-        // Tạo vector đặc trưng cho book
+        // Chuẩn hóa giá trị số trong khoảng [0,1]
+        private double Normalize(double value, double minValue, double maxValue)
+        {
+            return (value - minValue) / (maxValue - minValue);
+        }
+
+        // Mã hóa one-hot encoding cho thuộc tính phân loại
+        private double[] OneHotEncode(int value, int distinctCount)
+        {
+            var encoding = new double[distinctCount];
+            encoding[value] = 1.0;
+            return encoding;
+        }
         private Dictionary<int, double[]> FeatureVector(Book book)
+        {
+            var combinedString = $"{book.Name} {book.Author.Name} {book.Subcategory.Name} {book.Subcategory.Category.Name} {book.CoverType.TypeName}";
+            var words = PreprocessText(combinedString).Split(' ');
+            var featureVector = new double[words.Length];
+
+            for (int i = 0; i < words.Length; i++)
+            {
+                var item = ComputeTFIDF(words[i], words);
+                featureVector[i] = item;
+            }
+
+            var result = new Dictionary<int, double[]>();
+            result[book.Id] = featureVector;
+            return result;
+        }
+
+        // Tạo vector đặc trưng cho book
+        private Dictionary<int, double[]> FeatureVector2(Book book)
         {
             var words = PreprocessText(book.Description).Split(' ');
             var featureVector = new double[words.Length];
@@ -166,12 +206,14 @@ namespace FahasaStoreAPI.Services
                 var computeCosine = ComputeCosineSimilarity(vectorA[book.Id], vectorB[otherBook.Id]);
                 similarBooksDictionary[otherBook.Id] = computeCosine;
             }
+            
             var similarBooks = similarBooksDictionary
                 .OrderByDescending(e => e.Value)
                 .Select(e => e.Key)
-                .Skip(1)
+                .Where(e => e != book.Id)
                 .Take(take);
-            return similarBooks.ToList();
+            var result = similarBooks.ToList();
+            return result;
         }
 
         // ------------------------------------------------------------------ From Cart
@@ -269,6 +311,15 @@ namespace FahasaStoreAPI.Services
         // item-based recommendation
         public IEnumerable<int> FindSimilarBooksBasedOnCart(IEnumerable<Book> cart, int take, string aggregationMethod = "average")
         {
+            if (!cart.Any())
+            {
+                return _books
+                    .OrderByDescending(book => book.CreatedAt)
+                    .Take(take)
+                    .Select(book => book.Id)
+                    .ToList();
+            }
+
             var cartVectors = cart.Select(book => _bookFeatureVectors[book.Id]);
             double[] aggregateVector;
 

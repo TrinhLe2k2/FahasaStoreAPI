@@ -56,7 +56,13 @@ namespace FahasaStoreAPI.Controllers
         [HttpGet("SimilarBooks/{id}")]
         public async Task<ActionResult> SimilarBooks(int id, int size = 10)
         {
-            var currentBook = await _context.Books.FindAsync(id);
+            var currentBook = await _context.Books
+                .Include(b => b.Author)
+                .Include(b => b.CoverType)
+                .Include(b => b.Subcategory)
+                    .ThenInclude(sc => sc.Category)
+                .FirstOrDefaultAsync(e => e.Id == id);
+
             if (currentBook == null)
             {
                 return BadRequest();
@@ -107,15 +113,8 @@ namespace FahasaStoreAPI.Controllers
                 .Select(ci => ci.Book)
                 .ToListAsync();
 
-            if (cartBooks == null || cartBooks.Count == 0)
-            {
-                return NotFound("Cart is empty or does not exist.");
-            }
-
             // Find similar books based on the cart items
             var similarBookIds = _bookRecommendationSystem.FindSimilarBooksBasedOnCart(cartBooks, 100, aggregationMethod);
-
-            
 
             var query = _context.Books
             .Include(b => b.Author)

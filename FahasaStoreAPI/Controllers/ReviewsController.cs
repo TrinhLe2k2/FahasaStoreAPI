@@ -25,20 +25,24 @@ namespace FahasaStoreAPI.Controllers
             return query.Include(e => e.Book).Include(e => e.User);
         }
 
-        private async Task<bool> HasUserPurchasedBook(string userId, int bookId)
+        private async Task<bool> HasUserPurchasedBook(ReviewModel model)
         {
-            return await _context.Orders
-                .Include(o => o.OrderItems)
-                .Include(o => o.Payment)
-                .AnyAsync(o => o.UserId == userId
-                    && o.OrderItems.Any(oi => oi.BookId == bookId)
-                    && o.Payment != null);
+            var result = await _context.Orders
+                .Include(e => e.User)
+                .Include(e => e.OrderItems)
+                .Include(e => e.OrderStatuses)
+                .Where(o => o.UserId == model.UserId && o.Id == model.OrderId && o.OrderStatuses.Any(os => os.StatusId == 2))
+                .SelectMany(o => o.OrderItems)
+                .AnyAsync(oi => oi.BookId == model.BookId);
+
+            return result;
         }
 
         [HttpPost]
         public override async Task<ActionResult<ReviewModel>> PostEntity(ReviewModel model)
         {
-            if (await HasUserPurchasedBook(model.UserId, model.BookId))
+            var check = await HasUserPurchasedBook(model);
+            if (check)
             {
                 return await base.PostEntity(model);
             }
